@@ -8,6 +8,7 @@ use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
 use piston::input::{RenderArgs, RenderEvent, UpdateArgs, UpdateEvent};
 use piston::window::WindowSettings;
+use std::f64;
 
 pub struct App {
     gl: GlGraphics, // OpenGL drawing backend.
@@ -21,27 +22,33 @@ impl App {
         const WOOD: [f32; 4] = [252.0, 186.0, 0.0, 3.0];
         const CIRCLE_COL: [f32; 4] = [0.0, 1.0, 1.0, 1.0];
         const BOARD_SIZE: i64 = 19; // size: 19*19 dunno how to define
+        const X: usize = 0;
+        const Y: usize = 1;
         let square_size = [
-            (args.window_size[0] as i64 / BOARD_SIZE) as f64,
-            (args.window_size[1] as i64 / BOARD_SIZE) as f64,
+            (args.window_size[X] as i64 / BOARD_SIZE + 2) as f64,
+            (args.window_size[Y] as i64 / BOARD_SIZE + 2) as f64,
         ];
 
-        let square = rectangle::square(0.0, 0.0, square_size[0] - 5.0);
         let circle = rectangle::square(0.0, 0.0, 20.0);
         self.gl.draw(args.viewport(), |c, gl| {
             // Clear the screen.
             clear(BLACK, gl);
+            let cell_edge = Line::new(WOOD, 1.0);
+            for i in 0..(BOARD_SIZE) {
+                let x = square_size[X] + (i as f64 * square_size[X]);
+                let vline = [x, 0.0, x, args.window_size[Y]];
+                cell_edge.draw(vline, &c.draw_state, c.transform, gl);
+                let y = square_size[Y] + (i as f64 * square_size[Y]);
+                let vline = [0.0, y, args.window_size[X], y];
+                cell_edge.draw(vline, &c.draw_state, c.transform, gl);
 
-            for i in 0..(BOARD_SIZE * BOARD_SIZE) {
-                let x = (i % 19) as f64 * square_size[0];
-                let y = (i / 19) as f64 * square_size[1] - 5.0;
-                let transform = c.transform.trans(x, y);
-                rectangle(WOOD, square, transform, gl);
-
-                let x = x + (square_size[0] + 20.0) / 2.0;
-                let y = y + (square_size[1] + 20.0) / 2.0;
-                let circle_transform = c.transform.trans(x, y);
-                ellipse(CIRCLE_COL, circle, circle_transform, gl);
+                for j in 0..(BOARD_SIZE) {
+                    let circle_transform = c.transform.trans(
+                        x - 10.0,
+                        square_size[Y] + (j as f64 * square_size[Y]) - 10.0,
+                    );
+                    ellipse(CIRCLE_COL, circle, circle_transform, gl);
+                }
                 // let y = square_size * ((i as f64 * square_size) / args.window_size[0]).floor();
                 // println!("x:{} y:{}", x, y);
                 // println!(
