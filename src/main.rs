@@ -24,12 +24,13 @@ impl App {
         const BOARD_SIZE: i64 = 19; // size: 19*19 dunno how to define
         const X: usize = 0;
         const Y: usize = 1;
+        let circle_size = 20.0;
+        let circle_radius = circle_size / 2.0;
+        let circle = rectangle::square(0.0, 0.0, circle_size);
         let square_size = [
             (args.window_size[X] as i64 / BOARD_SIZE + 2) as f64,
             (args.window_size[Y] as i64 / BOARD_SIZE + 2) as f64,
         ];
-
-        let circle = rectangle::square(0.0, 0.0, 20.0);
         self.gl.draw(args.viewport(), |c, gl| {
             // Clear the screen.
             clear(BLACK, gl);
@@ -44,8 +45,8 @@ impl App {
 
                 for j in 0..BOARD_SIZE {
                     let circle_transform = c.transform.trans(
-                        x - 10.0,
-                        square_size[Y] + (j as f64 * square_size[Y]) - 10.0,
+                        x - circle_radius,
+                        square_size[Y] + (j as f64 * square_size[Y]) - circle_radius,
                     );
                     ellipse(CIRCLE_COL, circle, circle_transform, gl);
                 }
