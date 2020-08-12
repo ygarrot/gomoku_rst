@@ -34,7 +34,7 @@ impl App {
             // Clear the screen.
             clear(BLACK, gl);
             let cell_edge = Line::new(WOOD, 1.0);
-            for i in 0..BOARD_SIZE + 1 {
+            for i in 0..BOARD_SIZE {
                 let x = (i + 1) as f64 * square_size[X];
                 let y = (i + 1) as f64 * square_size[Y];
                 let vline = [x, 0.0, x, args.window_size[Y]];
@@ -49,17 +49,6 @@ impl App {
                     );
                     ellipse(CIRCLE_COL, circle, circle_transform, gl);
                 }
-                // let y = square_size * ((i as f64 * square_size) / args.window_size[0]).floor();
-                // println!("x:{} y:{}", x, y);
-                // println!(
-                //     "x:{} round:{}",
-                //     ((i as f64 * square_size) / args.window_size[0]),
-                //     ((i as f64 * square_size) / args.window_size[0]).round()
-                // );
-                // println!(
-                //     "win 0:{} win 1:{}",
-                //     args.window_size[0], args.window_size[1]
-                // );
             }
         });
     }
