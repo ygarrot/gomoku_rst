@@ -34,15 +34,15 @@ impl App {
             // Clear the screen.
             clear(BLACK, gl);
             let cell_edge = Line::new(WOOD, 1.0);
-            for i in 0..(BOARD_SIZE) {
-                let x = square_size[X] + (i as f64 * square_size[X]);
+            for i in 0..BOARD_SIZE + 1 {
+                let x = (i + 1) as f64 * square_size[X];
+                let y = (i + 1) as f64 * square_size[Y];
                 let vline = [x, 0.0, x, args.window_size[Y]];
                 cell_edge.draw(vline, &c.draw_state, c.transform, gl);
-                let y = square_size[Y] + (i as f64 * square_size[Y]);
                 let vline = [0.0, y, args.window_size[X], y];
                 cell_edge.draw(vline, &c.draw_state, c.transform, gl);
 
-                for j in 0..(BOARD_SIZE) {
+                for j in 0..BOARD_SIZE {
                     let circle_transform = c.transform.trans(
                         x - 10.0,
                         square_size[Y] + (j as f64 * square_size[Y]) - 10.0,
