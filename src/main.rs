@@ -9,8 +9,12 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::WindowSettings;
 
+pub use crate::gameboard::Gameboard;
+pub use crate::gameboard_controller::GameboardController;
 pub use crate::gameboard_view::{GameboardView, GameboardViewSettings};
 
+mod gameboard;
+mod gameboard_controller;
 mod gameboard_view;
 
 fn main() {
@@ -24,20 +28,27 @@ fn main() {
         .build()
         .unwrap();
 
-    // Create a new game and run it.
-    let mut app = GameboardView {
+    let mut gameboard_view = GameboardView {
         gl: GlGraphics::new(opengl),
         settings: GameboardViewSettings::new(),
     };
 
+    let gameboard = Gameboard::new();
+    let mut gameboard_controller = GameboardController::new(gameboard);
     let mut events = Events::new(EventSettings::new());
+
     while let Some(e) = events.next(&mut window) {
+        gameboard_controller.event(
+            gameboard_view.settings.position,
+            gameboard_view.settings.size,
+            &e,
+        );
         if let Some(args) = e.render_args() {
-            app.render(&args);
+            gameboard_view.render(&args);
         }
 
         // if let Some(args) = e.update_args() {
-        //     app.update(&args);
+        //     gameboard_view.update(&args);
         // }
     }
 }

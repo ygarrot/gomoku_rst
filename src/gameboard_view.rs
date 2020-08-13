@@ -7,7 +7,7 @@ use piston::input::{RenderArgs, UpdateArgs};
 use std::f64;
 
 pub struct GameboardView {
-    pub gl: GlGraphics, // OpenGL drawing backend.
+    pub gl: GlGraphics,
     pub settings: GameboardViewSettings,
 }
 
