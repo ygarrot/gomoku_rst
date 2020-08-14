@@ -9,32 +9,19 @@ use std::f64;
 
 static X: usize = 0;
 static Y: usize = 1;
-
-#[derive(Copy, Clone)]
-pub enum PLAYER {
-    WhitePlayer,
-    BlackPlayer,
-    NoPlayer,
-}
-static WHITE: [f32; 4] = [255.0, 255.0, 255.0, 1.0];
-static BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
-static WOOD: [f32; 4] = [86.0, 35.0, 141.0, 1.0];
-static CIRCLE_COL: [f32; 4] = [0.0, 1.0, 1.0, 1.0];
-
 pub struct GameboardView {
     pub gl: GlGraphics,
     pub settings: GameboardViewSettings,
 }
 
 pub struct GameboardViewSettings {
-    pub goban: [[PLAYER; 19]; 19],
     pub square_size: [f64; 2],
     pub position: [f64; 2],
     pub size: f64,
     pub background_color: Color,
     pub line_color: Color,
 
-    pub board_size: usize,
+    pub board_size: i64,
     pub circle_size: f64,
     pub circle_color: Color,
     pub circle_radius: f64,
@@ -45,11 +32,13 @@ pub struct GameboardViewSettings {
     pub selected_cell_background_color: Color,
     pub text_color: Color,
 }
-
 impl GameboardViewSettings {
     pub fn new() -> GameboardViewSettings {
+        const BLACK: [f32; 4] = [0.0, 0.0, 0.0, 0.0];
+        const WOOD: [f32; 4] = [252.0, 186.0, 0.0, 3.0];
+        const CIRCLE_COL: [f32; 4] = [0.0, 1.0, 1.0, 1.0];
+
         GameboardViewSettings {
-            goban: [[PLAYER::NoPlayer; 19]; 19],
             board_size: 19,
             circle_size: 20.0,
             circle_radius: 20.0 / 2.0,
@@ -61,8 +50,8 @@ impl GameboardViewSettings {
             cell_edge_radius: 1.0,
             selected_cell_background_color: [0.9, 0.9, 1.0, 1.0],
             text_color: [0.0, 0.0, 0.1, 1.0],
-            background_color: WOOD,
-            line_color: BLACK,
+            background_color: BLACK,
+            line_color: WOOD,
             circle_color: CIRCLE_COL,
         }
     }
@@ -78,20 +67,20 @@ impl GameboardView {
 
     pub fn update_settings(&mut self, args: &RenderArgs) {
         self.settings.square_size = [
-            (args.window_size[X] as usize / self.settings.board_size + 2) as f64,
-            (args.window_size[Y] as usize / self.settings.board_size + 2) as f64,
+            (args.window_size[X] as i64 / self.settings.board_size + 2) as f64,
+            (args.window_size[Y] as i64 / self.settings.board_size + 2) as f64,
         ];
     }
 
-    // pub fn draw_ellipse(&mut self, args: &RenderArgs, x: f64, y: f64) {
-    //     let ref settings = self.settings;
-    //     let circle = rectangle::square(0.0, 0.0, settings.circle_size);
+    pub fn draw_ellipse(&mut self, args: &RenderArgs, x: f64, y: f64) {
+        let ref settings = self.settings;
+        let circle = rectangle::square(0.0, 0.0, settings.circle_size);
 
-    //     self.gl.draw(args.viewport(), |c, gl| {
-    //         let circle_transform = c.transform.trans(x, y);
-    //         ellipse(CIRCLE_COL_N, circle, circle_transform, gl);
-    //     });
-    // }
+        self.gl.draw(args.viewport(), |c, gl| {
+            let circle_transform = c.transform.trans(x, y);
+            ellipse(settings.circle_color, circle, circle_transform, gl);
+        });
+    }
 
     pub fn get_cursor_indexes(
         &mut self,
@@ -101,19 +90,15 @@ impl GameboardView {
         self.update_settings(args);
         let ref settings = self.settings;
         let square_size = settings.square_size;
+        let x = (user_input[X] / square_size[X] as f64).round();
+        let y = (user_input[Y] / square_size[Y] as f64).round();
 
-        let x_cursor = (user_input[X] / square_size[X] as f64).round();
-        let y_cursor = (user_input[Y] / square_size[Y] as f64).round();
-        let x = x_cursor * square_size[X];
-        let y = y_cursor * square_size[Y];
-
-        if x + settings.circle_radius > user_input[X]
-            && x - settings.circle_radius < user_input[X]
-            && y + settings.circle_radius > user_input[Y]
-            && y - settings.circle_radius < user_input[Y]
+        if x * square_size[X] + settings.circle_radius > user_input[X]
+            && x * square_size[X] - settings.circle_radius < user_input[X]
+            && y * square_size[Y] + settings.circle_radius > user_input[Y]
+            && y * square_size[Y] - settings.circle_radius < user_input[Y]
         {
-            println!("closest x: {}, y:{}", x_cursor, y_cursor);
-            self.settings.goban[x_cursor as usize - 1][y_cursor as usize - 1] = PLAYER::BlackPlayer;
+            println!("closest x: {}, y:{}", x, y);
             Some([x as i64, y as i64])
         } else {
             None
@@ -121,12 +106,14 @@ impl GameboardView {
     }
 
     pub fn render(&mut self, args: &RenderArgs) {
-        self.update_settings(args);
         let ref settings = self.settings;
-        let square_size = settings.square_size;
-
+        const X: usize = 0;
+        const Y: usize = 1;
         let circle = rectangle::square(0.0, 0.0, settings.circle_size);
-
+        let square_size = [
+            (args.window_size[X] as i64 / settings.board_size + 2) as f64,
+            (args.window_size[Y] as i64 / settings.board_size + 2) as f64,
+        ];
         self.gl.draw(args.viewport(), |c, gl| {
             clear(settings.background_color, gl);
             let cell_edge = Line::new(settings.line_color, 1.0);
@@ -143,12 +130,7 @@ impl GameboardView {
                         x - settings.circle_radius,
                         square_size[Y] + (j as f64 * square_size[Y]) - settings.circle_radius,
                     );
-                    let color = match settings.goban[i][j] {
-                        PLAYER::BlackPlayer => BLACK,
-                        PLAYER::WhitePlayer => WHITE,
-                        _ => CIRCLE_COL,
-                    };
-                    ellipse(color, circle, circle_transform, gl);
+                    ellipse(settings.circle_color, circle, circle_transform, gl);
                 }
             }
         });
