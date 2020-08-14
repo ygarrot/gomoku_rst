@@ -36,15 +36,15 @@ fn main() {
     let gameboard = Gameboard::new();
     let mut gameboard_controller = GameboardController::new(gameboard);
     let mut events = Events::new(EventSettings::new());
-
     while let Some(e) = events.next(&mut window) {
-        gameboard_controller.event(
-            gameboard_view.settings.position,
-            gameboard_view.settings.size,
-            &e,
-        );
+        gameboard_controller.event(&e);
         if let Some(args) = e.render_args() {
             gameboard_view.render(&args);
+            match gameboard_controller.click_on {
+                Some(x) => gameboard_view.get_cursor_indexes(&args, x),
+                None => None,
+            };
+            gameboard_controller.click_on = None;
         }
 
         // if let Some(args) = e.update_args() {

@@ -60,6 +60,33 @@ impl GameboardView {
         }
     }
 
+    pub fn get_cursor_indexes(
+        &mut self,
+        args: &RenderArgs,
+        user_input: [f64; 2],
+    ) -> Option<[i64; 2]> {
+        let ref settings = self.settings;
+        const X: usize = 0;
+        const Y: usize = 1;
+        let square_size = [
+            (args.window_size[X] as i64 / settings.board_size + 2) as f64,
+            (args.window_size[Y] as i64 / settings.board_size + 2) as f64,
+        ];
+        let x = (user_input[X] / square_size[X] as f64).round();
+        let y = (user_input[Y] / square_size[Y] as f64).round();
+
+        if x * square_size[X] + settings.circle_radius > user_input[X]
+            && x * square_size[X] - settings.circle_radius < user_input[X]
+            && y * square_size[Y] + settings.circle_radius > user_input[Y]
+            && y * square_size[Y] - settings.circle_radius < user_input[Y]
+        {
+            println!("closest x: {}, y:{}", x, y);
+            Some([x as i64, y as i64])
+        } else {
+            None
+        }
+    }
+
     pub fn render(&mut self, args: &RenderArgs) {
         let ref settings = self.settings;
         use graphics::*;

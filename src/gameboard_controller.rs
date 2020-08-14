@@ -1,3 +1,4 @@
+pub use crate::gameboard_view::{GameboardView, GameboardViewSettings};
 use piston::input::GenericEvent;
 
 use crate::Gameboard;
@@ -5,7 +6,8 @@ use crate::Gameboard;
 pub struct GameboardController {
     pub gameboard: Gameboard,
     pub selected_cell: Option<[usize; 2]>,
-    cursor_pos: [f64; 2],
+    pub click_on: Option<[f64; 2]>,
+    pub cursor_pos: [f64; 2],
 }
 
 impl GameboardController {
@@ -13,20 +15,17 @@ impl GameboardController {
         GameboardController {
             gameboard: gameboard,
             selected_cell: None,
-            cursor_pos: [0.0; 2],
+            click_on: None,
+            cursor_pos: [0.0, 0.0],
         }
     }
 
-    pub fn event<E: GenericEvent>(&mut self, pos: [f64; 2], size: f64, e: &E) {
-        use piston::input::{Button, Key, MouseButton};
+    pub fn event<E: GenericEvent>(&mut self, e: &E) {
+        use piston::input::{Button, MouseButton};
 
         e.mouse_cursor(|pos| self.cursor_pos = pos);
-
         if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {
-            println!(
-                "Mouse moved '{} {}'",
-                self.cursor_pos[0], self.cursor_pos[1]
-            );
+            self.click_on = Some(self.cursor_pos);
         }
         // if let Some(Button::Keyboard(key)) = e.press_args() {
         //     if let Some(ind) = self.selected_cell {
