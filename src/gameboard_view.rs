@@ -114,7 +114,7 @@ impl GameboardView {
         {
             println!("closest x: {}, y:{}", x_cursor, y_cursor);
             self.settings.goban[x_cursor as usize - 1][y_cursor as usize - 1] = PLAYER::BlackPlayer;
-            Some([x as i64, y as i64])
+            Some([x_cursor as i64, y_cursor as i64])
         } else {
             None
         }
