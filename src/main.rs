@@ -1,20 +1,54 @@
-// mod game {
-//     pub mod game {
-//         pub struct Game;
-//     }
-// }
+extern crate glutin_window;
+extern crate graphics;
+extern crate opengl_graphics;
+extern crate piston;
 
-mod game {
-    pub mod game;
-    pub mod player;
-    pub mod board;
-    pub mod r#move;
-}
+use glutin_window::GlutinWindow as Window;
+use opengl_graphics::{GlGraphics, OpenGL};
+use piston::event_loop::{EventSettings, Events};
+use piston::input::RenderEvent;
+use piston::window::WindowSettings;
 
-use game::game::Game;
+pub use crate::gameboard::Gameboard;
+pub use crate::gameboard_controller::GameboardController;
+pub use crate::gameboard_view::{GameboardView, GameboardViewSettings};
+
+mod gameboard;
+mod gameboard_controller;
+mod gameboard_view;
 
 fn main() {
-    let v = vec![("Robert", false), ("Michel", true)];
-    let g = Game::new(v, 19, 0);
-    println!("{:?}", g);
+    // Change this to OpenGL::V2_1 if not working.
+    let opengl = OpenGL::V3_2;
+
+    // Create an Glutin window.
+    let mut window: Window = WindowSettings::new("gomoku", [200, 200])
+        .graphics_api(opengl)
+        .exit_on_esc(true)
+        .build()
+        .unwrap();
+
+    let mut gameboard_view = GameboardView {
+        gl: GlGraphics::new(opengl),
+        settings: GameboardViewSettings::new(),
+    };
+
+    let gameboard = Gameboard::new();
+    let mut gameboard_controller = GameboardController::new(gameboard);
+    let mut events = Events::new(EventSettings::new());
+    while let Some(e) = events.next(&mut window) {
+        gameboard_controller.event(&e);
+        if let Some(args) = e.render_args() {
+            gameboard_view.render(&args);
+            match gameboard_controller.click_on {
+                Some(x) => gameboard_view.get_cursor_indexes(&args, x),
+                None => None,
+            };
+            gameboard_controller.click_on = None;
+        }
+
+        // if let Some(args) = e.update_args() {
+        //     gameboard_view.update(&args);
+        // }
+    }
 }
