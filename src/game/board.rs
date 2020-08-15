@@ -5,7 +5,7 @@ use super::r#move::Move;
 #[derive(Debug)]
 pub struct Board {
     _board: Vec<u8>,
-    size: usize
+    pub size: usize
 }
 
 impl Board {
@@ -16,8 +16,8 @@ impl Board {
         }
     }
 
-    pub fn set(&mut self, m: &Move) {
-        self._board[m.y as usize * self.size + m.x as usize] = m.player.id;
+    pub fn set(&mut self, m: &Move, val: u8) {
+        self._board[m.y as usize * self.size + m.x as usize] = val;
     }
 
     pub fn get(&self, x: usize, y: usize) -> u8 { // Maybe return Result<>

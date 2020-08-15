@@ -9,11 +9,11 @@ pub enum MoveError {
 
 #[derive(Debug)]
 pub struct Game {
-    players: Vec<Player>,
+    pub players: Vec<Player>,
     //rules: Vec<Rules>
-    board: Board,
-    player_turn: u8,
-    global_turn: u32,
+    pub board: Board,
+    pub player_turn: u8,
+    pub global_turn: u32,
 }
 
 impl Game {
@@ -39,15 +39,15 @@ impl Game {
             None => &mut self.board
         };
 
-        board.set(move_);
+        board.set(move_, self.player_turn);
 
         match Game::_apply_move_consequences(move_, board)? { //Maybe a vec of moves is needed
-            Some(m) => board.set(m),
+            Some(m) => board.set(m, self.player_turn),
             None => ()
         }
 
         self.global_turn += 1;
-        self.player_turn = (self.player_turn + 1) % self.players.len() as u8;
+        self.player_turn = self.global_turn as u8 % 2 + 1;
 
         Ok(self)
     }
