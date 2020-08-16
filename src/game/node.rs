@@ -10,15 +10,15 @@ pub struct Node<'a> {
 }
 
 impl Node<'_> {
-    pub fn max<'a>(a: &'a Node, b: &'a Node) -> &'a Node<'a> {
+    pub fn max<'a>(a: &'a mut Node<'a>, b: &'a mut Node<'a>) -> &'a mut Node<'a> {
         if a.score > b.score {
-            b
-        } else {
             a
+        } else {
+            b
         }
     }
 
-    pub fn min<'a>(a: &'a Node, b: &'a Node) -> &'a Node<'a> {
+    pub fn min<'a>(a: &'a mut Node<'a>, b: &'a mut Node<'a>) -> &'a mut Node<'a> {
         if a.score < b.score {
             a
         } else {
@@ -26,13 +26,13 @@ impl Node<'_> {
         }
     }
 
-    pub fn new<'a>(nde: &'a Node<'a>, board: Board, _turn: u8, mve: Move) -> Node<'a> {
+    pub fn new<'a>(nde: &'a mut Node<'a>, _turn: u8, mve: Move) -> Node<'a> {
         Node {
             r#move: mve,
             score: 0,
             turn: _turn,
             parent: nde,
-            board: board,
+            board: nde.board,
         }
     }
     fn get_heuristic(&self) -> u64 {

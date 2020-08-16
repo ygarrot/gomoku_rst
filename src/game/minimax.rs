@@ -7,7 +7,7 @@ pub struct Minimax {
 }
 
 impl Minimax {
-    fn create_childrens<'a>(&self, node: Node<'a>) -> Vec<Node<'a>> {
+    fn create_childrens<'a>(&mut self, node: &'a mut Node<'a>) -> Vec<&'a mut Node<'a>> {
         let mut list = vec![];
         for y in 0..node.board.size {
             for x in 0..node.board.size {
@@ -17,9 +17,9 @@ impl Minimax {
                 };
                 // if not self.game.checkRestrictionMove(move, self.game):
                 //     continue
-                let newNode = Node::new(&node, node.board, node.turn, _move);
+                let mut newNode = Node::new(node, node.turn, _move);
                 self.game.r#move(&newNode.r#move, Some(&mut newNode.board));
-                list.push(newNode);
+                list.push(&mut newNode);
             }
         }
         list
@@ -27,24 +27,24 @@ impl Minimax {
 
     pub fn minimax<'a>(
         &self,
-        node: Node<'a>,
+        first_node: &'a mut Node<'a>,
         depth: usize,
         maximize: bool,
         alpha: u8,
         beta: u8,
-    ) -> Node<'a> {
+    ) -> &'a Node<'a> {
         // type CmpFn = fn(&'a Node, &'a Node) -> &'a Node<'a>;
         // let mut cmp_fn = Node::min;
         // if maximize {
         //     cmp_fn = Node::max;
         // }
-        let best_node = node;
-        for node in self.create_childrens(node) {
-            let new_node = self.minimax(node, depth - 1, !maximize, alpha, beta);
+        let mut best_node = first_node;
+        for node in self.create_childrens(first_node) {
+            let mut new_node = self.minimax(node, depth - 1, !maximize, alpha, beta);
             if maximize {
-                best_node = Node::max(&best_node, &new_node);
+                best_node = Node::max(best_node, &mut new_node);
             } else {
-                best_node = Node::min(&best_node, &new_node);
+                best_node = Node::min(best_node, &mut new_node);
             }
         }
         best_node
