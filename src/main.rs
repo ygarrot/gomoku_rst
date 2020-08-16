@@ -44,7 +44,7 @@ fn main() {
         settings: GameboardViewSettings::new(),
     };
 
-    let mut game = Game::new(vec![("Robert", false), ("Michel", true)], 9, 0, vec!("Base"));
+    let mut game = Game::new(vec![("Robert", false), ("Michel", true)], 9, 1, vec!("Base"));
 
     let gameboard = Gameboard::new();
     let mut gameboard_controller = GameboardController::new(gameboard);

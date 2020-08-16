@@ -40,7 +40,7 @@ impl Game {
             players: p_vec,
             board: Board::new(board_size),
             player_turn: starter,
-            global_turn: 1
+            global_turn: 0
         }
     }
 
@@ -58,8 +58,8 @@ impl Game {
 
         board.set(move_, self.player_turn);
 
-        match Game::_apply_move_consequences(move_, board)? { //Maybe a vec of moves is needed
-            Some(m) => board.set(m, self.player_turn),
+        match Game::apply_move_consequences(move_, board)? { //Maybe a vec of moves is needed
+            Some(m) => board.set(m, 5),
             None => ()
         }
 
@@ -69,13 +69,31 @@ impl Game {
         Ok(self)
     }
 
-    fn _apply_move_consequences<'a>(move_: &Move, board: &Board) -> Result<Option<&'a Move>, MoveError> {
+    fn apply_move_consequences<'a>(move_: &Move, board: &Board) -> Result<Option<&'a Move>, MoveError> {
         //check for captures, winning conditions...
 
-        //if game_has_ended {
-        // Err(MoveError::GameEnded)
-        //}
+        if Game::game_has_ended(move_, board) {
+            return Err(MoveError::GameEnded);
+        }
 
         Ok(None)
+    }
+
+    fn game_has_ended(move_: &Move, board: &Board) -> bool {
+        fn count_dir(px: i64, py: i64, vx: i64, vy: i64, val: u8, b: &Board) -> u8 {
+            return if b.is_in_bounds(px as usize, py as usize) && b.get_fcoo(px as usize, py as usize) == val {1 + count_dir(px + vx, py + vy, vx, vy, val, b)} else {0}
+        }
+
+        let p_id = board.get(move_);
+
+        for vec in [(0, 1), (1, 1), (1, 0), (1, -1)].iter() {
+            let mut count = 1;
+            for dir in [-1, 1].iter() {
+                let n_vec = (vec.0 * dir, vec.1 * dir);
+                count += count_dir(move_.x as i64 + n_vec.0, move_.y as i64 + n_vec.1, n_vec.0, n_vec.1, p_id, board);
+                if count > 4 { return true; }
+            }
+        }
+        false
     }
 }

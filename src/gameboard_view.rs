@@ -144,7 +144,7 @@ impl GameboardView {
                         x - settings.circle_radius,
                         square_size[Y] + (j as f64 * square_size[Y]) - settings.circle_radius,
                     );
-                    let color = match FromPrimitive::from_u8(board.get(i, j)) {
+                    let color = match FromPrimitive::from_u8(board.get_fcoo(i, j)) {
                         Some(PLAYER::BlackPlayer) => BLACK,
                         Some(PLAYER::WhitePlayer) => WHITE,
                         _ => CIRCLE_COL,

@@ -20,7 +20,11 @@ impl Board {
         self._board[m.y as usize * self.size + m.x as usize] = val;
     }
 
-    pub fn get(&self, x: usize, y: usize) -> u8 { // Maybe return Result<>
+    pub fn get(&self, m: &Move) -> u8 {
+        self._board[m.y as usize * self.size + m.x as usize]
+    }
+
+    pub fn get_fcoo(&self, x: usize, y: usize) -> u8 {
         self._board[y * self.size + x]
     }
 
@@ -29,6 +33,6 @@ impl Board {
     }
 
     pub fn is_occupied(&self, m: &Move) -> bool {
-        self.get(m.x as usize, m.y as usize) != 0
+        self.get(m) != 0
     }
 }
