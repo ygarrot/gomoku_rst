@@ -9,12 +9,13 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::WindowSettings;
 
-
 mod game {
-    pub mod game;
-    pub mod player;
     pub mod board;
+    pub mod game;
+    pub mod minimax;
     pub mod r#move;
+    pub mod node;
+    pub mod player;
     pub mod rules;
 }
 mod gameboard;
@@ -44,7 +45,12 @@ fn main() {
         settings: GameboardViewSettings::new(),
     };
 
-    let mut game = Game::new(vec![("Robert", false), ("Michel", true)], 9, 1, vec!("Base"));
+    let mut game = Game::new(
+        vec![("Robert", false), ("Michel", true)],
+        9,
+        1,
+        vec!["Base"],
+    );
 
     let gameboard = Gameboard::new();
     let mut gameboard_controller = GameboardController::new(gameboard);
@@ -53,18 +59,24 @@ fn main() {
         gameboard_controller.event(&e);
         if let Some(args) = e.render_args() {
             match gameboard_controller.click_on {
-                Some(x) => {
-                    match gameboard_view.get_cursor_indexes(game.board.size, &args, x) {
-                        Some(coo) => match game.r#move(&Move{x: coo[0], y: coo[1]}, None) {
-                            Ok(_) => (),
-                            Err(e) => match e {
-                                MoveError::MoveForbidden => println!("Move [{}, {}] forbidden!", coo[0], coo[1]),
-                                MoveError::GameEnded => return println!("Game has ended !")
-                            }
+                Some(x) => match gameboard_view.get_cursor_indexes(game.board.size, &args, x) {
+                    Some(coo) => match game.r#move(
+                        &Move {
+                            x: coo[0],
+                            y: coo[1],
                         },
-                        None => ()
-                    }
-                }
+                        None,
+                    ) {
+                        Ok(_) => (),
+                        Err(e) => match e {
+                            MoveError::MoveForbidden => {
+                                println!("Move [{}, {}] forbidden!", coo[0], coo[1])
+                            }
+                            MoveError::GameEnded => return println!("Game has ended !"),
+                        },
+                    },
+                    None => (),
+                },
                 None => (),
             };
             gameboard_view.render(&game.board, &args);
