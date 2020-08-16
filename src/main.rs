@@ -15,12 +15,13 @@ mod game {
     pub mod player;
     pub mod board;
     pub mod r#move;
+    pub mod rules;
 }
 mod gameboard;
 mod gameboard_controller;
 mod gameboard_view;
 
-use game::game::Game;
+use game::game::{Game, MoveError};
 use game::r#move::Move;
 
 pub use gameboard::Gameboard;
@@ -43,7 +44,7 @@ fn main() {
         settings: GameboardViewSettings::new(),
     };
 
-    let mut game = Game::new(vec![("Robert", false), ("Michel", true)], 9, 0);
+    let mut game = Game::new(vec![("Robert", false), ("Michel", true)], 9, 0, vec!("Base"));
 
     let gameboard = Gameboard::new();
     let mut gameboard_controller = GameboardController::new(gameboard);
@@ -56,7 +57,10 @@ fn main() {
                     match gameboard_view.get_cursor_indexes(game.board.size, &args, x) {
                         Some(coo) => match game.r#move(&Move{x: coo[0], y: coo[1]}, None) {
                             Ok(_) => (),
-                            Err(e) => panic!(e)
+                            Err(e) => match e {
+                                MoveError::MoveForbidden => println!("Move [{}, {}] forbidden!", coo[0], coo[1]),
+                                MoveError::GameEnded => return println!("Game has ended !")
+                            }
                         },
                         None => ()
                     }

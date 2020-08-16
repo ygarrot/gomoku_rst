@@ -28,7 +28,7 @@ impl Board {
         x < self.size && y < self.size
     }
 
-    pub fn is_occupied(&self, x: usize, y: usize) -> bool {
-        self.get(x, y) == 0
+    pub fn is_occupied(&self, m: &Move) -> bool {
+        self.get(m.x as usize, m.y as usize) != 0
     }
 }
