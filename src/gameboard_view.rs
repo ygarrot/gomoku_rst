@@ -2,7 +2,6 @@ extern crate graphics;
 extern crate piston;
 
 use graphics::types::Color;
-use graphics::rectangle::square;
 use graphics::*;
 use opengl_graphics::{GlGraphics, Texture, TextureSettings};
 use piston::input::{RenderArgs, UpdateArgs};
@@ -26,7 +25,7 @@ pub enum PLAYER {
 static WHITE: [f32; 4] = [255.0, 255.0, 255.0, 1.0];
 static BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 static WOOD: [f32; 4] = [0.33, 0.13, 0.55, 1.0];
-static CIRCLE_COL: [f32; 4] = [0.0, 1.0, 1.0, 1.0];
+static CIRCLE_COL: [f32; 4] = [0.0, 1.0, 1.0, 0.2];
 
 pub struct GameboardView {
     pub gl: GlGraphics,
@@ -43,6 +42,7 @@ pub struct GameboardViewSettings {
     pub circle_size: f64,
     pub circle_color: Color,
     pub circle_radius: f64,
+    pub detection_radius: f64,
 
     pub board_edge_radius: f64,
     pub section_edge_radius: f64,
@@ -50,17 +50,16 @@ pub struct GameboardViewSettings {
     pub selected_cell_background_color: Color,
     pub text_color: Color,
     bg_texture: Texture,
-    ds: DrawState
 }
 
 impl GameboardViewSettings {
     pub fn new() -> GameboardViewSettings {
         let bg_texture = Texture::from_path(Path::new("./resources/wood.jpg"), &TextureSettings::new()).unwrap();
-        let ds = draw_state::DrawState::default();
 
         GameboardViewSettings {
             circle_size: 20.0,
             circle_radius: 20.0 / 2.0,
+            detection_radius: 20.0 / 2.0 * 3.0,
             position: [10.0; 2],
             square_size: [10.0; 2],
             size: 400.0,
@@ -73,7 +72,6 @@ impl GameboardViewSettings {
             line_color: BLACK,
             circle_color: CIRCLE_COL,
             bg_texture: bg_texture,
-            ds: ds
         }
     }
 }
@@ -91,6 +89,8 @@ impl GameboardView {
             (args.window_size[X] as usize / size + 2) as f64,
             (args.window_size[Y] as usize / size + 2) as f64,
         ];
+
+        // TODO : coder le code
     }
 
     // pub fn draw_ellipse(&mut self, args: &RenderArgs, x: f64, y: f64) {
@@ -115,23 +115,28 @@ impl GameboardView {
 
         let x_cursor = (user_input[X] / square_size[X] as f64).round();
         let y_cursor = (user_input[Y] / square_size[Y] as f64).round();
+
+        if x_cursor <= 0.0 || y_cursor <= 0.0 {
+            return None;
+        }
+
         let x = x_cursor * square_size[X];
         let y = y_cursor * square_size[Y];
 
-        if x + settings.circle_radius > user_input[X]
-            && x - settings.circle_radius < user_input[X]
-            && y + settings.circle_radius > user_input[Y]
-            && y - settings.circle_radius < user_input[Y]
+        if x + settings.detection_radius > user_input[X]
+            && x - settings.detection_radius < user_input[X]
+            && y + settings.detection_radius > user_input[Y]
+            && y - settings.detection_radius < user_input[Y]
         {
-            println!("closest x: {}, y:{}", x_cursor as u32 - 1, y_cursor as u32 - 1);
             Some([x_cursor as u32 - 1, y_cursor as u32 - 1])
         } else {
             None
         }
     }
 
-    pub fn render(&mut self, board: &Board, args: &RenderArgs) {
+    pub fn render(&mut self, board: &Board, args: &RenderArgs, mouse_cursor: [f64; 2]) {
         self.update_settings(board.size, args);
+        let coo = self.get_cursor_indexes(board.size, &args, mouse_cursor);
         let ref settings = self.settings;
         let square_size = settings.square_size;
 
@@ -140,7 +145,7 @@ impl GameboardView {
 
         self.gl.draw(args.viewport(), |c, gl| {
             clear(settings.background_color, gl);
-            background.draw(&settings.bg_texture, &settings.ds, c.transform, gl);
+            background.draw(&settings.bg_texture, &c.draw_state, c.transform, gl);
             let cell_edge = Line::new(settings.line_color, 1.0);
             for i in 0..board.size {
                 let x = (i + 1) as f64 * square_size[X];
@@ -162,6 +167,14 @@ impl GameboardView {
                     };
                     ellipse(color, circle, circle_transform, gl);
                 }
+
+            }
+            if let Some(coo) = coo {
+                let trans = c.transform.trans(
+                    (coo[X] + 1) as f64 * settings.square_size[X] - settings.circle_radius,
+                    square_size[Y] + (coo[Y] as f64 * square_size[Y]) - settings.circle_radius
+                );
+                ellipse(CIRCLE_COL, circle, trans, gl);
             }
         });
     }
