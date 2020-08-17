@@ -2,10 +2,12 @@ extern crate graphics;
 extern crate piston;
 
 use graphics::types::Color;
+use graphics::rectangle::square;
 use graphics::*;
-use opengl_graphics::GlGraphics;
+use opengl_graphics::{GlGraphics, Texture, TextureSettings};
 use piston::input::{RenderArgs, UpdateArgs};
 use std::f64;
+use std::path::Path;
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 
@@ -23,7 +25,7 @@ pub enum PLAYER {
 
 static WHITE: [f32; 4] = [255.0, 255.0, 255.0, 1.0];
 static BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
-static WOOD: [f32; 4] = [86.0, 35.0, 141.0, 1.0];
+static WOOD: [f32; 4] = [0.33, 0.13, 0.55, 1.0];
 static CIRCLE_COL: [f32; 4] = [0.0, 1.0, 1.0, 1.0];
 
 pub struct GameboardView {
@@ -47,10 +49,15 @@ pub struct GameboardViewSettings {
     pub cell_edge_radius: f64,
     pub selected_cell_background_color: Color,
     pub text_color: Color,
+    bg_texture: Texture,
+    ds: DrawState
 }
 
 impl GameboardViewSettings {
     pub fn new() -> GameboardViewSettings {
+        let bg_texture = Texture::from_path(Path::new("./resources/wood.jpg"), &TextureSettings::new()).unwrap();
+        let ds = draw_state::DrawState::default();
+
         GameboardViewSettings {
             circle_size: 20.0,
             circle_radius: 20.0 / 2.0,
@@ -65,6 +72,8 @@ impl GameboardViewSettings {
             background_color: WOOD,
             line_color: BLACK,
             circle_color: CIRCLE_COL,
+            bg_texture: bg_texture,
+            ds: ds
         }
     }
 }
@@ -127,9 +136,11 @@ impl GameboardView {
         let square_size = settings.square_size;
 
         let circle = rectangle::square(0.0, 0.0, settings.circle_size);
+        let background = Image::new().rect([0.0, 0.0, args.window_size[X], args.window_size[Y]]);
 
         self.gl.draw(args.viewport(), |c, gl| {
             clear(settings.background_color, gl);
+            background.draw(&settings.bg_texture, &settings.ds, c.transform, gl);
             let cell_edge = Line::new(settings.line_color, 1.0);
             for i in 0..board.size {
                 let x = (i + 1) as f64 * square_size[X];
@@ -147,7 +158,7 @@ impl GameboardView {
                     let color = match FromPrimitive::from_u8(board.get_fcoo(i, j)) {
                         Some(PLAYER::BlackPlayer) => BLACK,
                         Some(PLAYER::WhitePlayer) => WHITE,
-                        _ => CIRCLE_COL,
+                        _ => continue,
                     };
                     ellipse(color, circle, circle_transform, gl);
                 }

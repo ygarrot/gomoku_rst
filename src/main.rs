@@ -12,20 +12,18 @@ use piston::window::WindowSettings;
 mod game {
     pub mod board;
     pub mod game;
-    pub mod minimax;
+    // pub mod minimax;
     pub mod r#move;
     pub mod node;
     pub mod player;
     pub mod rules;
 }
-mod gameboard;
 mod gameboard_controller;
 mod gameboard_view;
 
 use game::game::{Game, MoveError};
 use game::r#move::Move;
 
-pub use gameboard::Gameboard;
 pub use gameboard_controller::GameboardController;
 pub use gameboard_view::{GameboardView, GameboardViewSettings};
 
@@ -34,7 +32,7 @@ fn main() {
     let opengl = OpenGL::V3_2;
 
     // Create an Glutin window.
-    let mut window: Window = WindowSettings::new("gomoku", [200, 200])
+    let mut window: Window = WindowSettings::new("gomoku", [800, 800])
         .graphics_api(opengl)
         .exit_on_esc(true)
         .build()
@@ -52,8 +50,7 @@ fn main() {
         vec!["Base"],
     );
 
-    let gameboard = Gameboard::new();
-    let mut gameboard_controller = GameboardController::new(gameboard);
+    let mut gameboard_controller = GameboardController::new();
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         gameboard_controller.event(&e);
@@ -79,10 +76,10 @@ fn main() {
                 },
                 None => (),
             };
+
             gameboard_view.render(&game.board, &args);
             gameboard_controller.click_on = None;
         }
-
         // if let Some(args) = e.update_args() {
         //     gameboard_view.update(&args);
         // }

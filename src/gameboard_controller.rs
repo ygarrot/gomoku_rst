@@ -1,19 +1,15 @@
 pub use crate::gameboard_view::{GameboardView, GameboardViewSettings};
 use piston::input::GenericEvent;
 
-use crate::Gameboard;
-
 pub struct GameboardController {
-    pub gameboard: Gameboard,
     pub selected_cell: Option<[usize; 2]>,
     pub click_on: Option<[f64; 2]>,
     pub cursor_pos: [f64; 2],
 }
 
 impl GameboardController {
-    pub fn new(gameboard: Gameboard) -> GameboardController {
+    pub fn new() -> GameboardController {
         GameboardController {
-            gameboard: gameboard,
             selected_cell: None,
             click_on: None,
             cursor_pos: [0.0, 0.0],
