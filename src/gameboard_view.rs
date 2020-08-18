@@ -3,7 +3,7 @@ extern crate piston;
 
 use graphics::types::Color;
 use graphics::*;
-use opengl_graphics::{GlGraphics, Texture, TextureSettings};
+use opengl_graphics::{GlGraphics, Texture, TextureSettings, GlyphCache};
 use piston::input::{RenderArgs, UpdateArgs};
 use std::f64;
 use std::path::Path;
@@ -27,12 +27,12 @@ static BLACK: [f32; 4] = [0.0, 0.0, 0.0, 1.0];
 static WOOD: [f32; 4] = [0.33, 0.13, 0.55, 1.0];
 static CIRCLE_COL: [f32; 4] = [0.0, 1.0, 1.0, 0.2];
 
-pub struct GameboardView {
+pub struct GameboardView<'a> {
     pub gl: GlGraphics,
-    pub settings: GameboardViewSettings,
+    pub settings: GameboardViewSettings<'a>,
 }
 
-pub struct GameboardViewSettings {
+pub struct GameboardViewSettings<'a> {
     pub square_size: [f64; 2],
     pub position: [f64; 2],
     pub size: f64,
@@ -50,11 +50,14 @@ pub struct GameboardViewSettings {
     pub selected_cell_background_color: Color,
     pub text_color: Color,
     bg_texture: Texture,
+    font_glyph: GlyphCache<'a>
 }
 
-impl GameboardViewSettings {
-    pub fn new() -> GameboardViewSettings {
+impl GameboardViewSettings<'_> {
+    pub fn new<'a>() -> GameboardViewSettings<'a> {
         let bg_texture = Texture::from_path(Path::new("./resources/wood.jpg"), &TextureSettings::new()).unwrap();
+        let font_path = Path::new("C:\\WINDOWS\\FONTS\\CALIBRIL.TTF");
+        let font_glyph = GlyphCache::new(font_path, (), TextureSettings::new()).unwrap();
 
         GameboardViewSettings {
             circle_size: 20.0,
@@ -72,11 +75,12 @@ impl GameboardViewSettings {
             line_color: BLACK,
             circle_color: CIRCLE_COL,
             bg_texture: bg_texture,
+            font_glyph: font_glyph,
         }
     }
 }
 
-impl GameboardView {
+impl GameboardView<'_> {
     pub fn new(gl: GlGraphics, settings: GameboardViewSettings) -> GameboardView {
         GameboardView {
             gl: gl,
@@ -176,6 +180,12 @@ impl GameboardView {
                 );
                 ellipse(CIRCLE_COL, circle, trans, gl);
             }
+
+            let font_path = Path::new("C:\\WINDOWS\\FONTS\\LINBIOLINUM_R_G.TTF");
+            let mut font_glyph = GlyphCache::new(font_path, (), TextureSettings::new()).unwrap();
+            text::Text::new_color(BLACK, 32)
+                .draw("Hello world!", &mut font_glyph, &c.draw_state, c.transform.trans(10.0, 100.0), gl)
+                .unwrap()
         });
     }
 
