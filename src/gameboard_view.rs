@@ -143,14 +143,27 @@ impl GameboardView<'_> {
         let coo = self.get_cursor_indexes(board.size, &args, mouse_cursor);
         let ref settings = self.settings;
         let square_size = settings.square_size;
+        let font_path = Path::new("./resources/FiraSans-Regular.ttf");
+        let mut font_glyph = GlyphCache::new(font_path, (), TextureSettings::new()).unwrap();
 
         let circle = rectangle::square(0.0, 0.0, settings.circle_size);
-        let background = Image::new().rect([0.0, 0.0, args.window_size[X], args.window_size[Y]]);
+        // let background = Image::new().rect([0.0, 0.0, args.window_size[X], args.window_size[Y]]);
 
         self.gl.draw(args.viewport(), |c, gl| {
             // clear(settings.background_color, gl);
             // clear([0.0, 0.0, 0.0, 1.0], gl);
             // background.draw(&settings.bg_texture, &c.draw_state, c.transform, gl);
+            graphics::clear([255.0, 255.0, 255.0, 1.0], gl);
+            graphics::text::Text::new_color([0.0, 1.0, 0.0, 1.0], 32)
+                .draw(
+                    "Hello world!",
+                    &mut font_glyph,
+                    &c.draw_state,
+                    c.transform.trans(10.0, 100.0),
+                    gl,
+                )
+                .unwrap();
+
             let cell_edge = Line::new(settings.line_color, 1.0);
             for i in 0..board.size {
                 let x = (i + 1) as f64 * square_size[X];

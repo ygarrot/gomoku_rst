@@ -4,7 +4,7 @@ extern crate opengl_graphics;
 extern crate piston;
 
 use glutin_window::GlutinWindow as Window;
-use opengl_graphics::{GlGraphics, GlyphCache, OpenGL, Texture, TextureSettings};
+use opengl_graphics::{GlGraphics, OpenGL};
 use piston::event_loop::{EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::WindowSettings;
@@ -23,7 +23,6 @@ mod gameboard_view;
 
 use game::game::{Game, MoveError};
 use game::r#move::Move;
-use graphics::*;
 
 pub use gameboard_controller::GameboardController;
 pub use gameboard_view::{GameboardView, GameboardViewSettings};
@@ -53,23 +52,9 @@ fn main() {
 
     let mut gameboard_controller = GameboardController::new();
     let mut events = Events::new(EventSettings::new());
-    let font_path = "./resources/FiraSans-Regular.ttf";
-    let mut font_glyph = GlyphCache::new(font_path, (), TextureSettings::new()).unwrap();
     while let Some(e) = events.next(&mut window) {
         gameboard_controller.event(&e);
         if let Some(args) = e.render_args() {
-            gameboard_view.gl.draw(args.viewport(), |c, gl| {
-                graphics::clear([255.0, 255.0, 255.0, 1.0], gl);
-                graphics::text::Text::new_color([0.0, 1.0, 0.0, 1.0], 32)
-                    .draw(
-                        "Hello world!",
-                        &mut font_glyph,
-                        &c.draw_state,
-                        c.transform.trans(10.0, 100.0),
-                        gl,
-                    )
-                    .unwrap()
-            });
             match gameboard_controller.click_on {
                 Some(x) => match gameboard_view.get_cursor_indexes(game.board.size, &args, x) {
                     Some(coo) => match game.r#move(
