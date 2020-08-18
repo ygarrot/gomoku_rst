@@ -10,11 +10,11 @@ use piston::input::RenderEvent;
 use piston::window::WindowSettings;
 
 mod game {
+    // pub mod minimax;
+    // pub mod node;
     pub mod board;
     pub mod game;
-    // pub mod minimax;
     pub mod r#move;
-    // pub mod node;
     pub mod player;
     pub mod rules;
 }
@@ -57,10 +57,18 @@ fn main() {
         if let Some(args) = e.render_args() {
             match gameboard_controller.click_on {
                 Some(x) => match gameboard_view.get_cursor_indexes(game.board.size, &args, x) {
-                    Some(coo) => match game.r#move(&Move { x: coo[0], y: coo[1] }, None) {
+                    Some(coo) => match game.r#move(
+                        &Move {
+                            x: coo[0],
+                            y: coo[1],
+                        },
+                        None,
+                    ) {
                         Ok(_) => (),
                         Err(e) => match e {
-                            MoveError::MoveForbidden => println!("Move [{}, {}] forbidden!", coo[0], coo[1]),
+                            MoveError::MoveForbidden => {
+                                println!("Move [{}, {}] forbidden!", coo[0], coo[1])
+                            }
                             MoveError::GameEnded => return println!("Game has ended !"),
                         },
                     },

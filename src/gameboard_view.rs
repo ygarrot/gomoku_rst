@@ -3,12 +3,12 @@ extern crate piston;
 
 use graphics::types::Color;
 use graphics::*;
+use num_derive::FromPrimitive;
+use num_traits::FromPrimitive;
 use opengl_graphics::{GlGraphics, Texture, TextureSettings};
 use piston::input::{RenderArgs, UpdateArgs};
 use std::f64;
 use std::path::Path;
-use num_derive::FromPrimitive;
-use num_traits::FromPrimitive;
 
 use crate::game::board::Board;
 
@@ -54,7 +54,8 @@ pub struct GameboardViewSettings {
 
 impl GameboardViewSettings {
     pub fn new() -> GameboardViewSettings {
-        let bg_texture = Texture::from_path(Path::new("./resources/wood.jpg"), &TextureSettings::new()).unwrap();
+        let bg_texture =
+            Texture::from_path(Path::new("./resources/wood.jpg"), &TextureSettings::new()).unwrap();
 
         GameboardViewSettings {
             circle_size: 20.0,
@@ -154,10 +155,11 @@ impl GameboardView {
                 cell_edge.draw(vline, &c.draw_state, c.transform, gl);
                 let vline = [0.0, y, args.window_size[X], y];
                 cell_edge.draw(vline, &c.draw_state, c.transform, gl);
-
+            }
+            for i in 0..board.size {
                 for j in 0..board.size {
                     let circle_transform = c.transform.trans(
-                        x - settings.circle_radius,
+                        (i + 1) as f64 * square_size[X] - settings.circle_radius,
                         square_size[Y] + (j as f64 * square_size[Y]) - settings.circle_radius,
                     );
                     let color = match FromPrimitive::from_u8(board.get_fcoo(i, j)) {
@@ -167,12 +169,11 @@ impl GameboardView {
                     };
                     ellipse(color, circle, circle_transform, gl);
                 }
-
             }
             if let Some(coo) = coo {
                 let trans = c.transform.trans(
                     (coo[X] + 1) as f64 * settings.square_size[X] - settings.circle_radius,
-                    square_size[Y] + (coo[Y] as f64 * square_size[Y]) - settings.circle_radius
+                    square_size[Y] + (coo[Y] as f64 * square_size[Y]) - settings.circle_radius,
                 );
                 ellipse(CIRCLE_COL, circle, trans, gl);
             }

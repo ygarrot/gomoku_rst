@@ -1,6 +1,7 @@
 use super::board::Board;
 use super::r#move::Move;
 
+#[derive(Clone, Debug)]
 pub struct Node<'a> {
     pub r#move: Move,
     score: u8,
@@ -10,7 +11,7 @@ pub struct Node<'a> {
 }
 
 impl Node<'_> {
-    pub fn max<'a>(a: &'a mut Node<'a>, b: &'a mut Node<'a>) -> &'a mut Node<'a> {
+    pub fn max<'a>(a: &'a Node<'a>, b: &'a Node<'a>) -> &'a Node<'a> {
         if a.score > b.score {
             a
         } else {
@@ -26,13 +27,13 @@ impl Node<'_> {
         }
     }
 
-    pub fn new<'a>(nde: &'a mut Node<'a>, _turn: u8, mve: Move) -> Node<'a> {
+    pub fn new<'a>(nde: &'a Node<'a>, _turn: u8, mve: Move) -> Node<'a> {
         Node {
             r#move: mve,
             score: 0,
             turn: _turn,
             parent: nde,
-            board: nde.board,
+            board: nde.board.clone(),
         }
     }
     fn get_heuristic(&self) -> u64 {
