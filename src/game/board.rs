@@ -2,17 +2,17 @@
 
 use super::r#move::Move;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Board {
     _board: Vec<u8>,
-    pub size: usize
+    pub size: usize,
 }
 
 impl Board {
     pub fn new(size: usize) -> Board {
         Board {
             _board: vec![0; size * size],
-            size
+            size,
         }
     }
 

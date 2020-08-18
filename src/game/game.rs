@@ -1,11 +1,11 @@
-use super::player::Player;
 use super::board::Board;
+use super::player::Player;
 use super::r#move::Move;
-use super::rules::{Rule, BaseRule, RuleType};
+use super::rules::{BaseRule, Rule, RuleType};
 
 pub enum MoveError {
     GameEnded,
-    MoveForbidden
+    MoveForbidden,
 }
 
 #[derive(Debug)]
@@ -18,21 +18,28 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(players: Vec<(&str, bool)>, board_size: usize, starter: u8, rules: Vec<&str>) -> Game {
+    pub fn new(
+        players: Vec<(&str, bool)>,
+        board_size: usize,
+        starter: u8,
+        rules: Vec<&str>,
+    ) -> Game {
         let mut p_vec: Vec<Player> = vec![];
-        
+
         for (i, p) in players.iter().enumerate() {
-            p_vec.push(Player{id: i as u8, name: p.0.to_string(), is_ai: p.1});
+            p_vec.push(Player {
+                id: i as u8,
+                name: p.0.to_string(),
+                is_ai: p.1,
+            });
         }
 
         let mut r_vec: Vec<Box<dyn Rule>> = vec![];
         for rulename in rules.iter() {
-            r_vec.push(
-                match rulename {
-                    &"Base" => Box::new(BaseRule{}),
-                    _ => Box::new(BaseRule{})
-                }
-            );
+            r_vec.push(match rulename {
+                &"Base" => Box::new(BaseRule {}),
+                _ => Box::new(BaseRule {}),
+            });
         }
 
         Game {
@@ -40,14 +47,18 @@ impl Game {
             players: p_vec,
             board: Board::new(board_size),
             player_turn: starter,
-            global_turn: 0
+            global_turn: 0,
         }
     }
 
-    pub fn r#move(&mut self, move_: &Move, emulated: Option<&mut Board>) -> Result<&Game, MoveError> {
+    pub fn r#move(
+        &mut self,
+        move_: &Move,
+        emulated: Option<&mut Board>,
+    ) -> Result<&Game, MoveError> {
         let board = match emulated {
             Some(b) => b,
-            None => &mut self.board
+            None => &mut self.board,
         };
 
         for rule in self.rules.iter() {
@@ -58,9 +69,10 @@ impl Game {
 
         board.set(move_, self.player_turn);
 
-        match Game::apply_move_consequences(move_, board)? { //Maybe a vec of moves is needed
+        match Game::apply_move_consequences(move_, board)? {
+            //Maybe a vec of moves is needed
             Some(m) => board.set(m, 5),
-            None => ()
+            None => (),
         }
 
         self.global_turn += 1;
@@ -69,7 +81,10 @@ impl Game {
         Ok(self)
     }
 
-    fn apply_move_consequences<'a>(move_: &Move, board: &Board) -> Result<Option<&'a Move>, MoveError> {
+    fn apply_move_consequences<'a>(
+        move_: &Move,
+        board: &Board,
+    ) -> Result<Option<&'a Move>, MoveError> {
         //check for captures, winning conditions...
 
         if Game::game_has_ended(move_, board) {
@@ -81,7 +96,13 @@ impl Game {
 
     fn game_has_ended(move_: &Move, board: &Board) -> bool {
         fn count_dir(px: i64, py: i64, vx: i64, vy: i64, val: u8, b: &Board) -> u8 {
-            return if b.is_in_bounds(px as usize, py as usize) && b.get_fcoo(px as usize, py as usize) == val {1 + count_dir(px + vx, py + vy, vx, vy, val, b)} else {0}
+            return if b.is_in_bounds(px as usize, py as usize)
+                && b.get_fcoo(px as usize, py as usize) == val
+            {
+                1 + count_dir(px + vx, py + vy, vx, vy, val, b)
+            } else {
+                0
+            };
         }
 
         let p_id = board.get(move_);
@@ -90,8 +111,17 @@ impl Game {
             let mut count = 1;
             for dir in [-1, 1].iter() {
                 let n_vec = (vec.0 * dir, vec.1 * dir);
-                count += count_dir(move_.x as i64 + n_vec.0, move_.y as i64 + n_vec.1, n_vec.0, n_vec.1, p_id, board);
-                if count > 4 { return true; }
+                count += count_dir(
+                    move_.x as i64 + n_vec.0,
+                    move_.y as i64 + n_vec.1,
+                    n_vec.0,
+                    n_vec.1,
+                    p_id,
+                    board,
+                );
+                if count > 4 {
+                    return true;
+                }
             }
         }
         false
