@@ -94,6 +94,7 @@ impl GameboardView<'_> {
             (args.window_size[Y] as usize / size + 2) as f64,
         ];
 
+        self.settings.detection_radius = args.window_size[X].min(args.window_size[Y]) / 2.0
         // TODO : coder le code
     }
 
