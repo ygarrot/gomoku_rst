@@ -1,7 +1,8 @@
-// TODO: use a bitboard if performance are needed
+use rand::Rng;
 
 use super::r#move::Move;
 
+// TODO: use a bitboard if performance are needed
 #[derive(Clone, Debug)]
 pub struct Board {
     _board: Vec<u8>,
@@ -34,5 +35,9 @@ impl Board {
 
     pub fn is_occupied(&self, m: &Move) -> bool {
         self.get(m) != 0
+    }
+
+    pub fn get_score(&self) -> u64 {
+        rand::thread_rng().gen::<u64>()
     }
 }

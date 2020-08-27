@@ -10,8 +10,8 @@ use piston::input::RenderEvent;
 use piston::window::WindowSettings;
 
 mod game {
-    // pub mod minimax;
-    // pub mod node;
+    pub mod minimax;
+    pub mod node;
     pub mod board;
     pub mod game;
     pub mod r#move;
@@ -24,6 +24,8 @@ mod gameboard_view;
 use game::game::{Game, MoveError};
 use game::r#move::Move;
 
+use game::minimax::minimax;
+
 pub use gameboard_controller::GameboardController;
 pub use gameboard_view::{GameboardView, GameboardViewSettings};
 
@@ -31,25 +33,27 @@ fn main() {
     // Change this to OpenGL::V2_1 if not working.
     let opengl = OpenGL::V3_2;
 
+    
     // Create an Glutin window.
     let mut window: Window = WindowSettings::new("gomoku", [800, 800])
-        .graphics_api(opengl)
-        .exit_on_esc(true)
-        .build()
-        .unwrap();
-
+    .graphics_api(opengl)
+    .exit_on_esc(true)
+    .build()
+    .unwrap();
+    
     let mut gameboard_view = GameboardView {
         gl: GlGraphics::new(opengl),
         settings: GameboardViewSettings::new(),
     };
-
+    
     let mut game = Game::new(
         vec![("Robert", false), ("Michel", true)],
         9,
         1,
         vec!["Base"],
     );
-
+    
+    
     let mut gameboard_controller = GameboardController::new();
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
@@ -63,6 +67,7 @@ fn main() {
                             y: coo[1],
                         },
                         None,
+                        None
                     ) {
                         Ok(_) => (),
                         Err(e) => match e {

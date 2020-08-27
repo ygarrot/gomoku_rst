@@ -6,7 +6,7 @@ pub struct Node<'a> {
     pub r#move: Move,
     score: u8,
     pub turn: u8,
-    parent: &'a Node<'a>,
+    parent: Option<&'a Node<'a>>,
     pub board: Board,
 }
 
@@ -19,7 +19,7 @@ impl Node<'_> {
         }
     }
 
-    pub fn min<'a>(a: &'a mut Node<'a>, b: &'a mut Node<'a>) -> &'a mut Node<'a> {
+    pub fn min<'a>(a: &'a Node<'a>, b: &'a Node<'a>) -> &'a Node<'a> {
         if a.score < b.score {
             a
         } else {
@@ -27,13 +27,16 @@ impl Node<'_> {
         }
     }
 
-    pub fn new<'a>(nde: &'a Node<'a>, _turn: u8, mve: Move) -> Node<'a> {
+    pub fn new<'a>(nde: Option<&'a Node<'a>>, _turn: u8, mve: Move, b: Option<Board>) -> Node<'a> {
         Node {
             r#move: mve,
             score: 0,
             turn: _turn,
             parent: nde,
-            board: nde.board.clone(),
+            board: match b {
+                Some(b) => b,
+                None => nde.unwrap().board.clone()
+            },
         }
     }
     fn get_heuristic(&self) -> u64 {

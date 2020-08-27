@@ -55,11 +55,14 @@ impl Game {
         &mut self,
         move_: &Move,
         emulated: Option<&mut Board>,
+        val: Option<u8>
     ) -> Result<&Game, MoveError> {
-        let board = match emulated {
-            Some(b) => b,
-            None => &mut self.board,
+        let emu = match emulated {
+            Some(b) => (b, true),
+            None => (&mut self.board, false),
         };
+        let board = emu.0;
+        let v = if emu.1 {val.unwrap()} else {self.player_turn};
 
         for rule in self.rules.iter() {
             if rule.r#type() == RuleType::CONDITION && !rule.valid(board, move_) {
@@ -67,16 +70,18 @@ impl Game {
             }
         }
 
-        board.set(move_, self.player_turn);
+        board.set(move_, v);
 
         match Game::apply_move_consequences(move_, board)? {
             //Maybe a vec of moves is needed
-            Some(m) => board.set(m, 5),
+            Some(m) => board.set(m, v),
             None => (),
         }
 
-        self.global_turn += 1;
-        self.player_turn = self.global_turn as u8 % 2 + 1;
+        if !emu.1 {
+            self.global_turn += 1;
+            self.player_turn = self.global_turn as u8 % 2 + 1;
+        }
 
         Ok(self)
     }
@@ -94,7 +99,16 @@ impl Game {
         Ok(None)
     }
 
-    fn game_has_ended(move_: &Move, board: &Board) -> bool {
+    pub fn check_restrictions(&self, mve: &Move, board: &Board) -> Result<(), MoveError> {
+        for rule in self.rules.iter() {
+            if rule.r#type() == RuleType::CONDITION && !rule.valid(board, mve) {
+                return Err(MoveError::MoveForbidden);
+            }
+        }
+        Ok(())
+    }
+
+    pub fn game_has_ended(move_: &Move, board: &Board) -> bool {
         fn count_dir(px: i64, py: i64, vx: i64, vy: i64, val: u8, b: &Board) -> u8 {
             return if b.is_in_bounds(px as usize, py as usize)
                 && b.get_fcoo(px as usize, py as usize) == val
