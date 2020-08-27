@@ -59,29 +59,33 @@ fn main() {
     while let Some(e) = events.next(&mut window) {
         gameboard_controller.event(&e);
         if let Some(args) = e.render_args() {
-            match gameboard_controller.click_on {
-                Some(x) => match gameboard_view.get_cursor_indexes(game.board.size, &args, x) {
-                    Some(coo) => match game.r#move(
-                        &Move {
-                            x: coo[0],
-                            y: coo[1],
+            if game.players[(game.player_turn - 1) as usize].is_ai {
+                let ret = minimax(&mut game.board.clone(), game.player_turn - 1, game.player_turn - 1, 2, std::u64::MAX, std::u64::MIN, &mut game, None);
+                game.r#move(&ret.1, None, None);
+            } else {
+                match gameboard_controller.click_on {
+                    Some(x) => match gameboard_view.get_cursor_indexes(game.board.size, &args, x) {
+                        Some(coo) => match game.r#move(
+                            &Move {
+                                x: coo[0],
+                                y: coo[1],
+                            },
+                            None,
+                            None
+                        ) {
+                            Ok(_) => (),
+                            Err(e) => match e {
+                                MoveError::MoveForbidden => {
+                                    println!("Move [{}, {}] forbidden!", coo[0], coo[1])
+                                }
+                                MoveError::GameEnded => return println!("Game has ended !"),
+                            },
                         },
-                        None,
-                        None
-                    ) {
-                        Ok(_) => (),
-                        Err(e) => match e {
-                            MoveError::MoveForbidden => {
-                                println!("Move [{}, {}] forbidden!", coo[0], coo[1])
-                            }
-                            MoveError::GameEnded => return println!("Game has ended !"),
-                        },
+                        None => (),
                     },
                     None => (),
-                },
-                None => (),
-            };
-
+                };
+            }
             gameboard_view.render(&game.board, &args, gameboard_controller.cursor_pos);
             gameboard_controller.click_on = None;
         }
