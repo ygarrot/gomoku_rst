@@ -83,6 +83,9 @@ impl Game {
             self.player_turn = self.global_turn as u8 % 2 + 1;
         }
 
+        println!("Player 1 score {}", self.board.get_score(1));
+        println!("Player 2 score {}", self.board.get_score(2));
+
         Ok(self)
     }
 

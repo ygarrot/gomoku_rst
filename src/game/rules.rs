@@ -23,7 +23,7 @@ pub struct BaseRule {}
 
 impl Rule for BaseRule {
     fn valid(&self, b: &Board, m: &Move) -> bool {
-        !b.is_occupied(m)
+        !b.is_occupied(m.x as usize, m.y as usize)
     }
 
     fn r#type(&self) -> RuleType { RuleType::CONDITION }

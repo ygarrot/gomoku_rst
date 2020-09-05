@@ -23,6 +23,7 @@ mod gameboard_view;
 
 use game::game::{Game, MoveError};
 use game::r#move::Move;
+use game::board::Board;
 
 use game::minimax::minimax;
 
@@ -33,7 +34,6 @@ fn main() {
     // Change this to OpenGL::V2_1 if not working.
     let opengl = OpenGL::V3_2;
 
-    
     // Create an Glutin window.
     let mut window: Window = WindowSettings::new("gomoku", [800, 800])
     .graphics_api(opengl)
@@ -47,7 +47,7 @@ fn main() {
     };
     
     let mut game = Game::new(
-        vec![("Robert", false), ("Michel", true)],
+        vec![("Robert", false), ("Michel", false)],
         9,
         1,
         vec!["Base"],
@@ -60,7 +60,8 @@ fn main() {
         gameboard_controller.event(&e);
         if let Some(args) = e.render_args() {
             if game.players[(game.player_turn - 1) as usize].is_ai {
-                let ret = minimax(&mut game.board.clone(), game.player_turn - 1, game.player_turn - 1, 2, std::u64::MAX, std::u64::MIN, &mut game, None);
+                let ret = minimax(&mut game.board.clone(), game.player_turn - 1, game.player_turn - 1, 5, std::i64::MAX, std::i64::MIN, &mut game, None);
+                // println!("{}", ret.0);
                 game.r#move(&ret.1, None, None);
             } else {
                 match gameboard_controller.click_on {

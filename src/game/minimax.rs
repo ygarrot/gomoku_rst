@@ -1,5 +1,4 @@
 use super::game::{MoveError, Game};
-use super::node::Node;
 use super::r#move::Move;
 use super::board::Board;
 
@@ -30,31 +29,31 @@ pub fn minimax(
     target_player: u8,
     current_player: u8,
     depth: usize,
-    mut alpha: u64,
-    mut beta: u64,
+    mut alpha: i64,
+    mut beta: i64,
     game: &mut Game,
     mve: Option<Move>
-) -> (u64, Move) {
+) -> (i64, Move) {
     let move_save = match mve {
         Some(m) => {
             match game.r#move(&m, Some(&mut board), Some(current_player)) {
                 Ok(_) => (),
                 Err(e) => match e {
-                    MoveError::GameEnded => return (board.get_score(), m),
+                    MoveError::GameEnded => return (board.get_score(current_player), m),
                     _ => ()
                 }
             }
             if depth == 0 {
-                return (board.get_score(), m)
+                return (board.get_score(current_player), m)
             }
             Some(m)
         } 
         None => None
     };
 
-    let mut best_move = (std::u64::MAX, Move {x: 0, y: 0});
+    let mut best_move = (std::i64::MAX, Move {x: 255, y: 255});
     if current_player == target_player {
-        best_move = (std::u64::MIN, Move {x: 0, y: 0})
+        best_move = (std::i64::MIN, Move {x: 255, y: 255})
     }
     
     for m in gen_moves(current_player, &board, game) {
