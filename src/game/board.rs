@@ -61,7 +61,7 @@ impl Board {
         if self.get_fcoo(x, y) != player {
             return (self.is_occupied(x, y), 0);
         }
-        checks[y * self.size + x] |= Board::get_vec_bit(x as f32, y as f32);
+        checks[y * self.size + x] |= Board::get_vec_bit(vx as f32, vy as f32);
         let res = self.count_dir((x as i32 + vx) as usize, (y as i32 + vy) as usize, vx, vy, player, checks);
         return (res.0, 1 + res.1);
     }
@@ -70,7 +70,7 @@ impl Board {
         let mut cell_score = 0;
         let mut dir_save = (false, 0);
 
-        for vec in [(0, 1), (1, 1), (1, 0), (1, -1)].iter() {
+        for vec in [(0, 1), (1, -1), (1, 1), (1, 0)].iter() {
             for dir in [-1, 1].iter() {
                 let n_vec: (i32, i32) = (vec.0 * dir, vec.1 * dir);
                 let checker = Board::get_vec_bit(n_vec.0 as f32, n_vec.1 as f32);
@@ -86,11 +86,11 @@ impl Board {
                     if *dir == -1 {
                         dir_save = res;
                     } else if (!dir_save.0 || !res.0) && (res.1 + dir_save.1 != 0) {
-                        cell_score += 1 + res.1 + dir_save.1;
+                        cell_score += (1 + res.1 + dir_save.1).pow(5);
                     }
                 }
             }
-            checks[(y * self.size + x)] |= Board::get_vec_bit(vec.0 as f32, vec.1 as f32);
+            checks[y * self.size + x] |= Board::get_vec_bit(vec.0 as f32, vec.1 as f32);
         }
         cell_score
     }

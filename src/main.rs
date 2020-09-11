@@ -47,7 +47,7 @@ fn main() {
     };
     
     let mut game = Game::new(
-        vec![("Robert", false), ("Michel", false)],
+        vec![("Robert", false), ("Michel", true)],
         9,
         1,
         vec!["Base"],
