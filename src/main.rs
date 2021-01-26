@@ -61,8 +61,14 @@ fn main() {
         if let Some(args) = e.render_args() {
             if game.players[(game.player_turn - 1) as usize].is_ai {
                 let ret = minimax(&mut game.board.clone(), game.player_turn - 1, game.player_turn - 1, 5, std::i64::MAX, std::i64::MIN, &mut game, None);
-                // println!("{}", ret.0);
-                game.r#move(&ret.1, None, None);
+                 println!("{:?}", ret.1);
+                match game.r#move(&ret.1, None, None){
+                    Ok(_) => (),
+                            Err(e) => match e {
+                                MoveError::GameEnded => return println!("Game has ended !"),
+                                _ => (),
+                            },
+                        }
             } else {
                 match gameboard_controller.click_on {
                     Some(x) => match gameboard_view.get_cursor_indexes(game.board.size, &args, x) {

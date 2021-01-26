@@ -90,8 +90,8 @@ impl GameboardView<'_> {
 
     pub fn update_settings(&mut self, size: usize, args: &RenderArgs) {
         self.settings.square_size = [
-            (args.window_size[X] as usize / size + 2) as f64,
-            (args.window_size[Y] as usize / size + 2) as f64,
+            (args.window_size[X] as usize / size - 7) as f64,
+            (args.window_size[Y] as usize / size - 7) as f64,
         ];
 
         self.settings.detection_radius = args.window_size[X].min(args.window_size[Y]) / 2.0
