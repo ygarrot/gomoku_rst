@@ -19,6 +19,10 @@ impl Board {
         self._board[m.y as usize * self.size + m.x as usize] = val;
     }
 
+    pub fn set_fcoo(&mut self, x: usize, y: usize, val: u8) {
+        self._board[y as usize * self.size + x as usize] = val;
+    }
+
     pub fn get(&self, m: &Move) -> u8 {
         self._board[m.y as usize * self.size + m.x as usize]
     }
@@ -39,6 +43,10 @@ impl Board {
         u8::pow(2, ((vy.atan2(vx).to_degrees() as i32).rem_euclid(180) / 45) as u32)   
     }
 
+    pub fn display(&self)
+    {
+        println!("{:?}", self._board);
+    }
     pub fn get_score(&self, player: u8) -> i64 {
         let mut score = 0;
         let mut checks: Vec<u8> = vec![Default::default(); self.size * self.size];

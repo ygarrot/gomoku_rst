@@ -1,7 +1,7 @@
 use super::board::Board;
 use super::player::Player;
 use super::r#move::Move;
-use super::rules::{BaseRule, Rule, RuleType};
+use super::rules::{BaseRule, Rule, RuleType, Capture};
 
 pub enum MoveError {
     GameEnded,
@@ -38,6 +38,7 @@ impl Game {
         for rulename in rules.iter() {
             r_vec.push(match rulename {
                 &"Base" => Box::new(BaseRule {}),
+                &"Capture" => Box::new(Capture {}),
                 _ => Box::new(BaseRule {}),
             });
         }
@@ -65,11 +66,10 @@ impl Game {
         let v = if emu.1 {val.unwrap()} else {self.player_turn};
 
         for rule in self.rules.iter() {
-            if rule.r#type() == RuleType::CONDITION && !rule.valid(board, move_) {
+            if rule.r#type() == RuleType::CAPTURE && !rule.capture(board, move_) {
                 return Err(MoveError::MoveForbidden);
             }
         }
-
         board.set(move_, v);
 
         match Game::apply_move_consequences(move_, board)? {
@@ -83,7 +83,7 @@ impl Game {
             self.player_turn = self.global_turn as u8 % 2 + 1;
         }
 
-        println!("player turn: {:?}", self.players[(self.player_turn - 1) as usize].name);
+        println!("player turn: {:?} id: {:?}", self.players[(self.player_turn - 1) as usize].name,self.players[(self.player_turn - 1) as usize].id);
         println!("Player 1 score {}", self.board.get_score(1));
         println!("Player 2 score {}", self.board.get_score(2));
         
@@ -103,8 +103,12 @@ impl Game {
         Ok(None)
     }
 
-    pub fn check_restrictions(&self, mve: &Move, board: &Board) -> Result<(), MoveError> {
+    pub fn check_restrictions(&self, mve: &Move, board: &mut Board) -> Result<(), MoveError> {
         for rule in self.rules.iter() {
+            if rule.r#type() == RuleType::CONDITION && !rule.valid(board, mve) {
+                return Err(MoveError::MoveForbidden);
+            }
+
             if rule.r#type() == RuleType::CONDITION && !rule.valid(board, mve) {
                 return Err(MoveError::MoveForbidden);
             }
