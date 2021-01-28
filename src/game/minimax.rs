@@ -57,7 +57,7 @@ pub fn minimax(
     }
     
     for m in gen_moves(current_player, &mut board, game) {
-        let res = minimax(&mut board.clone(), target_player, (current_player + 1) % 2, depth - 1, alpha, beta, game, Some(m));
+        let res = minimax(&mut board.clone(), target_player, if current_player == 1 {2}else {1}, depth - 1, alpha, beta, game, Some(m));
         if current_player == target_player {
             if best_move.0 < res.0 {
                 best_move = res;

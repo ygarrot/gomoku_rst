@@ -38,27 +38,17 @@ impl Rule for Capture{
     fn capture(&self, board: &mut Board, move_: &Move,player_id:u8) -> bool {
         fn count_dir(player_x: i64, player_y: i64, increment_x: i64,
             increment_y: i64, id: u8, board: &mut Board) {
-            println!("id: {:?}", id);
                 let vals = if id == 1 {[2, 2, 1]} else {[1, 1, 2]};
                 for i in 0..3
                 {
                     let x = (player_x + increment_x * i) as usize;
                     let y = (player_y + increment_y * i) as usize;
-                    if (board.is_in_bounds(x,y)&&id==1)
-                    {
-                        print!("x, y: {:?} - values {:?} | ", (x, y), board.get_fcoo(x, y));
-                    }
             if (!board.is_in_bounds(x,y) ||
                  board.get_fcoo(x, y) != vals[i as usize])
             {
-                if (id == 1)
-                {
-                println!("");
-                }
                     return ;
             }
         }
-                board.display();
                             board.set_fcoo(player_x as usize, player_y as usize, 0);
                             board.set_fcoo((player_x + increment_x) as usize, (player_y + increment_y) as usize, 0);
                     }
