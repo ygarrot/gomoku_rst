@@ -1,7 +1,7 @@
 use super::board::Board;
 use super::player::Player;
 use super::r#move::Move;
-use super::rules::{BaseRule, Rule, RuleType, Capture};
+use super::rules::{BaseRule, Rule, RuleType, Capture, FreeThrees};
 
 pub enum MoveError {
     GameEnded,
@@ -28,9 +28,10 @@ impl Game {
 
         for (i, p) in players.iter().enumerate() {
             p_vec.push(Player {
-                id: i as u8,
+                id: (i+1) as u8,
                 name: p.0.to_string(),
                 is_ai: p.1,
+                free_threes: 0,
             });
         }
 
@@ -39,6 +40,7 @@ impl Game {
             r_vec.push(match rulename {
                 &"Base" => Box::new(BaseRule {}),
                 &"Capture" => Box::new(Capture {}),
+                &"FreeThrees" => Box::new(FreeThrees {}),
                 _ => Box::new(BaseRule {}),
             });
         }
@@ -66,6 +68,9 @@ impl Game {
         let v = if emu.1 {val.unwrap()} else {self.player_turn};
 
         for rule in self.rules.iter() {
+            if rule.r#type() == RuleType::FREE_THREES && !rule.free_threes(board, move_, &self.players[(self.player_turn - 1) as usize]) {
+                return Err(MoveError::MoveForbidden);
+            }
             if rule.r#type() == RuleType::CAPTURE && !rule.capture(board, move_,v) {
                 return Err(MoveError::MoveForbidden);
             }

@@ -50,7 +50,7 @@ fn main() {
         vec![("Player", false), ("AI", true)],
         9,
         1,
-        vec!["Base", "Capture"],
+        vec!["Base", "Capture", "FreeThrees"],
     );
     
     
@@ -60,7 +60,6 @@ fn main() {
         gameboard_controller.event(&e);
         if let Some(args) = e.render_args() {
             if game.players[(game.player_turn - 1) as usize].is_ai {
-            println!("ai");
                 let ret = minimax(&mut game.board.clone(), game.player_turn - 1, game.player_turn - 1, 5, std::i64::MAX, std::i64::MIN, &mut game, None);
                 match game.r#move(&ret.1, None, None){
                     Ok(_) => (),
