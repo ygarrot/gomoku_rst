@@ -66,7 +66,10 @@ impl Game {
         let v = if emu.1 {val.unwrap()} else {self.player_turn};
 
         for rule in self.rules.iter() {
-            if rule.r#type() == RuleType::CAPTURE && !rule.capture(board, move_) {
+            if rule.r#type() == RuleType::CAPTURE && !rule.capture(board, move_,v) {
+                return Err(MoveError::MoveForbidden);
+            }
+            if rule.r#type() == RuleType::CONDITION && !rule.valid(board, move_) {
                 return Err(MoveError::MoveForbidden);
             }
         }
@@ -109,9 +112,6 @@ impl Game {
                 return Err(MoveError::MoveForbidden);
             }
 
-            if rule.r#type() == RuleType::CONDITION && !rule.valid(board, mve) {
-                return Err(MoveError::MoveForbidden);
-            }
         }
         Ok(())
     }

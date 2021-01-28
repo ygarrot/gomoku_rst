@@ -12,7 +12,7 @@ pub enum RuleType {
 pub trait Rule {
     fn valid(&self, b: &Board, m: &Move) -> bool;
     fn r#type(&self) -> RuleType;
-    fn capture(&self, board: &mut Board, move_: &Move,) -> bool;
+    fn capture(&self, board: &mut Board, move_: &Move,id:u8) -> bool;
 }
 
 impl Debug for dyn Rule {
@@ -30,36 +30,38 @@ impl Rule for BaseRule {
     }
 
     fn r#type(&self) -> RuleType { RuleType::CONDITION }
-    fn capture(&self, board: &mut Board, move_: &Move,) -> bool{true}
+    fn capture(&self, board: &mut Board, move_: &Move,id:u8) -> bool{true}
 }
 
 impl Rule for Capture{
     fn valid(&self, b: &Board, m: &Move) -> bool{true}
-    fn capture(&self, board: &mut Board, move_: &Move,) -> bool {
+    fn capture(&self, board: &mut Board, move_: &Move,player_id:u8) -> bool {
         fn count_dir(player_x: i64, player_y: i64, increment_x: i64,
             increment_y: i64, id: u8, board: &mut Board) {
-                let vals = if id == 0 {[2, 2, 1]} else {[1, 1, 2]};
-                for i in 0..2
+            println!("id: {:?}", id);
+                let vals = if id == 1 {[2, 2, 1]} else {[1, 1, 2]};
+                for i in 0..3
                 {
                     let x = (player_x + increment_x * i) as usize;
                     let y = (player_y + increment_y * i) as usize;
-                    if (board.is_in_bounds(x,y)&&id==0)
+                    if (board.is_in_bounds(x,y)&&id==1)
                     {
                         print!("x, y: {:?} - values {:?} | ", (x, y), board.get_fcoo(x, y));
                     }
             if (!board.is_in_bounds(x,y) ||
                  board.get_fcoo(x, y) != vals[i as usize])
             {
-                board.display();
+                if (id == 1)
+                {
+                println!("");
+                }
                     return ;
             }
         }
-        //board.display();
+                board.display();
                             board.set_fcoo(player_x as usize, player_y as usize, 0);
                             board.set_fcoo((player_x + increment_x) as usize, (player_y + increment_y) as usize, 0);
                     }
-
-        let p_id = board.get(move_);
 
         for vec in [(0, 1), (1, 1), (1, 0), (1, -1)].iter() {
             for dir in [-1, 1].iter() {
@@ -69,7 +71,7 @@ impl Rule for Capture{
                     move_.y as i64 + n_vec.1,
                     n_vec.0,
                     n_vec.1,
-                    p_id,
+                    player_id,
                     board,
                 );
             }
