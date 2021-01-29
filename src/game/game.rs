@@ -1,7 +1,7 @@
 use super::board::Board;
 use super::player::Player;
 use super::r#move::Move;
-use super::rules::{BaseRule, Rule, RuleType, Capture, FreeThrees};
+use super::rules::{BaseRule, Capture, FreeThrees, Rule, RuleType};
 
 pub enum MoveError {
     GameEnded,
@@ -28,7 +28,7 @@ impl Game {
 
         for (i, p) in players.iter().enumerate() {
             p_vec.push(Player {
-                id: (i+1) as u8,
+                id: (i + 1) as u8,
                 name: p.0.to_string(),
                 is_ai: p.1,
                 free_threes: 0,
@@ -58,23 +58,29 @@ impl Game {
         &mut self,
         move_: &Move,
         emulated: Option<&mut Board>,
-        val: Option<u8>
+        val: Option<u8>,
     ) -> Result<&Game, MoveError> {
         let emu = match emulated {
             Some(b) => (b, true),
             None => (&mut self.board, false),
         };
         let board = emu.0;
-        let v = if emu.1 {val.unwrap()} else {self.player_turn};
-
+        let v = if emu.1 {
+            val.unwrap()
+        } else {
+            self.player_turn
+        };
+        let player = &self.players[(self.player_turn - 1) as usize];
         for rule in self.rules.iter() {
-            if rule.r#type() == RuleType::FREE_THREES && !rule.free_threes(board, move_, &self.players[(self.player_turn - 1) as usize]) {
+            if rule.r#type() == RuleType::FREE_THREES
+                && !rule.valid(board, move_, &player)
+            {
                 return Err(MoveError::MoveForbidden);
             }
-            if rule.r#type() == RuleType::CAPTURE && !rule.capture(board, move_,v) {
+            if rule.r#type() == RuleType::CAPTURE && !rule.valid(board, move_, &player) {
                 return Err(MoveError::MoveForbidden);
             }
-            if rule.r#type() == RuleType::CONDITION && !rule.valid(board, move_) {
+            if rule.r#type() == RuleType::CONDITION && !rule.valid(board, move_, &player) {
                 return Err(MoveError::MoveForbidden);
             }
         }
@@ -91,10 +97,13 @@ impl Game {
             self.player_turn = self.global_turn as u8 % 2 + 1;
         }
 
-        println!("player turn: {:?} id: {:?}", self.players[(self.player_turn - 1) as usize].name,self.players[(self.player_turn - 1) as usize].id);
+        println!(
+            "player turn: {:?} id: {:?}",
+            self.players[(self.player_turn - 1) as usize].name,
+            self.players[(self.player_turn - 1) as usize].id
+        );
         println!("Player 1 score {}", self.board.get_score(1));
         println!("Player 2 score {}", self.board.get_score(2));
-        
         Ok(self)
     }
 
@@ -111,12 +120,12 @@ impl Game {
         Ok(None)
     }
 
-    pub fn check_restrictions(&self, mve: &Move, board: &mut Board) -> Result<(), MoveError> {
+    pub fn check_restrictions(&self, move_: &Move, board: &mut Board) -> Result<(), MoveError> {
+        let player = &self.players[(self.player_turn - 1) as usize];
         for rule in self.rules.iter() {
-            if rule.r#type() == RuleType::CONDITION && !rule.valid(board, mve) {
+            if rule.r#type() == RuleType::CONDITION && !rule.valid(board, move_, &player) {
                 return Err(MoveError::MoveForbidden);
             }
-
         }
         Ok(())
     }
