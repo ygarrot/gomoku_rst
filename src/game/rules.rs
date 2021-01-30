@@ -1,4 +1,5 @@
 use super::board::Board;
+use super::game::Game;
 use super::player::Player;
 use super::r#move::Move;
 use core::fmt::Debug;
@@ -12,7 +13,7 @@ pub enum RuleType {
 }
 
 pub trait Rule {
-    fn valid(&self, board: &mut Board, move_: &Move, player: &Player) -> bool ;
+    fn valid(&self, board: &mut Board, move_: &Move, player: &Player) -> bool;
     fn r#type(&self) -> RuleType;
 }
 
@@ -36,21 +37,21 @@ impl Rule for BaseRule {
 }
 
 impl Rule for Capture {
-    fn valid(&self, board: &mut Board, move_: &Move, player: & Player) -> bool {
-        fn count_dir(
+    fn valid(&self, board: &mut Board, move_: &Move, player: &Player) -> bool {
+        fn check_capture(
             player_x: i64,
             player_y: i64,
             increment_x: i64,
             increment_y: i64,
             id: u8,
             board: &mut Board,
-        ) {
+        ) ->u8 {
             let vals = if id == 1 { [2, 2, 1] } else { [1, 1, 2] };
             for i in 0..3 {
                 let x = (player_x + increment_x * i) as usize;
                 let y = (player_y + increment_y * i) as usize;
                 if !board.is_in_bounds(x, y) || board.get_fcoo(x, y) != vals[i as usize] {
-                    return;
+                    return 1;
                 }
             }
             board.stone_captured[id as usize - 1] += 2;
@@ -60,21 +61,17 @@ impl Rule for Capture {
                 (player_y + increment_y) as usize,
                 0,
             );
+            1
         }
-
-        for vec in [(0, 1), (1, 1), (1, 0), (1, -1)].iter() {
-            for dir in [-1, 1].iter() {
-                let n_vec = (vec.0 * dir, vec.1 * dir);
-                count_dir(
-                    move_.x as i64 + n_vec.0,
-                    move_.y as i64 + n_vec.1,
-                    n_vec.0,
-                    n_vec.1,
-                    player.id,
-                    board,
-                );
-            }
-        }
+        Game::apply_to_near_edges(
+            move_,
+            board,
+            player.id,
+            0,
+            check_capture,
+            Game::void_after,
+        );
+        
         true
     }
     fn r#type(&self) -> RuleType {
@@ -84,7 +81,7 @@ impl Rule for Capture {
 
 impl Rule for FreeThrees {
     fn valid(&self, board: &mut Board, move_: &Move, player: &Player) -> bool {
-        fn count_dir(
+        fn check_free_threes(
             player_x: i64,
             player_y: i64,
             increment_x: i64,
@@ -119,22 +116,25 @@ impl Rule for FreeThrees {
             }
             return 1;
         }
-
-        let mut count = 0;
-        for vec in [(0, 1), (1, 1), (1, 0), (1, -1)].iter() {
-            for dir in [-1, 1].iter() {
-                let n_vec = (vec.0 * dir, vec.1 * dir);
-                count += count_dir(
-                    move_.x as i64 + n_vec.0,
-                    move_.y as i64 + n_vec.1,
-                    n_vec.0,
-                    n_vec.1,
-                    player.id,
-                    board,
-                );
-            }
+        pub fn add_total_free_threes(
+            _v: (i64, i64),
+            res: u8,
+            _i: &Move,
+            _d: &mut Board,
+            _a: u8,
+            count: u8,
+        ) -> u8 {
+            count + res
         }
-        return player.free_threes + count <= 1;
+        let free_three_count = Game::apply_to_near_edges(
+            move_,
+            board,
+            player.id,
+            0,
+            check_free_threes,
+            add_total_free_threes,
+        );
+        return player.free_threes + free_three_count <= 1;
     }
     fn r#type(&self) -> RuleType {
         RuleType::FREE_THREES
