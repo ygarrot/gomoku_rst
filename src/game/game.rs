@@ -9,8 +9,8 @@ pub enum MoveError {
 }
 static MAX_STONE_CAPTURED: u8 = 10;
 static MAX_STONE_ALIGNED: u8 = 5;
-static BS_TRUE:u8 = 1;
-static BS_FALSE:u8 = 0;
+static BS_TRUE: u8 = 1;
+static BS_FALSE: u8 = 0;
 
 #[derive(Debug)]
 pub struct Game {
@@ -158,7 +158,7 @@ impl Game {
         }
         tmp
     }
-    pub fn void_after(_v: (i64, i64), res : u8, _i: &Move, _d: &mut Board, _a: u8, count: u8) -> u8 {
+    pub fn void_after(_v: (i64, i64), res: u8, _i: &Move, _d: &mut Board, _a: u8, count: u8) -> u8 {
         count | res
     }
     pub fn apply_to_near_edges(
@@ -217,8 +217,7 @@ impl Game {
                 0,
                 check_capture_on_line,
                 Game::void_after,
-            )
-            {
+            ) {
                 return BS_TRUE;
             }
 
@@ -239,8 +238,7 @@ impl Game {
             p_id: u8,
             count: u8,
         ) -> u8 {
-            if count == BS_TRUE
-            {
+            if count == BS_TRUE {
                 return BS_TRUE;
             }
             if res >= MAX_STONE_ALIGNED {
@@ -254,7 +252,7 @@ impl Game {
                     count,
                     check_ennemy_possible_capture,
                 ) {
-                println!("----------------------------------------------------");
+                    println!("----------------------------------------------------");
                     return BS_TRUE;
                 }
             }
