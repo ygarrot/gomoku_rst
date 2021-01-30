@@ -242,7 +242,6 @@ impl Game {
                 return BS_TRUE;
             }
             if res >= MAX_STONE_ALIGNED {
-                println!("****************************************************");
                 if 1 != Game::apply_to_choosen_opposite(
                     vec,
                     res,
@@ -252,7 +251,6 @@ impl Game {
                     count,
                     check_ennemy_possible_capture,
                 ) {
-                    println!("----------------------------------------------------");
                     return BS_TRUE;
                 }
             }
@@ -271,25 +269,5 @@ impl Game {
         let p_id = board.get(move_);
 
         return 1 == Game::apply_to_near_edges(move_, board, p_id, 0, count_dir, check_count);
-        // for vec in [(0, 1), (1, 1), (1, 0), (1, -1)].iter() {
-        //     let mut count = 1;
-
-        //     for dir in [-1, 1].iter() {
-        //         let n_vec = (vec.0 * dir, vec.1 * dir);
-        //         count += count_dir(
-        //             move_.x as i64 + n_vec.0,
-        //             move_.y as i64 + n_vec.1,
-        //             n_vec.0,
-        //             n_vec.1,
-        //             p_id,
-        //             board,
-        //         );
-        //     }
-
-        //     if count >= MAX_STONE_ALIGNED {
-        //         check_if_capture_block_alignment(*vec, move_, board, p_id);
-        //         return true;
-        //     }
-        // }
     }
 }
