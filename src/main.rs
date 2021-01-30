@@ -10,11 +10,11 @@ use piston::input::RenderEvent;
 use piston::window::WindowSettings;
 
 mod game {
-    pub mod minimax;
-    pub mod node;
     pub mod board;
     pub mod game;
+    pub mod minimax;
     pub mod r#move;
+    pub mod node;
     pub mod player;
     pub mod rules;
 }
@@ -23,7 +23,6 @@ mod gameboard_view;
 
 use game::game::{Game, MoveError};
 use game::r#move::Move;
-use game::board::Board;
 
 use game::minimax::minimax;
 
@@ -36,38 +35,43 @@ fn main() {
 
     // Create an Glutin window.
     let mut window: Window = WindowSettings::new("gomoku", [800, 800])
-    .graphics_api(opengl)
-    .exit_on_esc(true)
-    .build()
-    .unwrap();
-    
+        .graphics_api(opengl)
+        .exit_on_esc(true)
+        .build()
+        .unwrap();
     let mut gameboard_view = GameboardView {
         gl: GlGraphics::new(opengl),
         settings: GameboardViewSettings::new(),
     };
-    
     let mut game = Game::new(
         vec![("Player", false), ("AI", true)],
         9,
         1,
         vec!["Base", "Capture", "FreeThrees"],
     );
-    
-    
     let mut gameboard_controller = GameboardController::new();
     let mut events = Events::new(EventSettings::new());
     while let Some(e) = events.next(&mut window) {
         gameboard_controller.event(&e);
         if let Some(args) = e.render_args() {
             if game.players[(game.player_turn - 1) as usize].is_ai {
-                let ret = minimax(&mut game.board.clone(), game.player_turn - 1, game.player_turn - 1, 5, std::i64::MAX, std::i64::MIN, &mut game, None);
-                match game.r#move(&ret.1, None, None){
+                let ret = minimax(
+                    &mut game.board.clone(),
+                    game.player_turn - 1,
+                    game.player_turn - 1,
+                    5,
+                    std::i64::MAX,
+                    std::i64::MIN,
+                    &mut game,
+                    None,
+                );
+                match game.r#move(&ret.1, None, None) {
                     Ok(_) => (),
-                            Err(e) => match e {
-                                MoveError::GameEnded => return println!("Game has ended !"),
-                                _ => (),
-                            },
-                        }
+                    Err(e) => match e {
+                        MoveError::GameEnded => return println!("Game has ended !"),
+                        _ => (),
+                    },
+                }
             } else {
                 match gameboard_controller.click_on {
                     Some(x) => match gameboard_view.get_cursor_indexes(game.board.size, &args, x) {
@@ -77,7 +81,7 @@ fn main() {
                                 y: coo[1],
                             },
                             None,
-                            None
+                            None,
                         ) {
                             Ok(_) => (),
                             Err(e) => match e {

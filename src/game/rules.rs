@@ -27,7 +27,7 @@ pub struct Capture {}
 pub struct FreeThrees {}
 
 impl Rule for BaseRule {
-    fn valid(&self, board: &mut Board, move_: &Move, player: &Player) -> bool {
+    fn valid(&self, board: &mut Board, move_: &Move, _player: &Player) -> bool {
         !board.is_occupied(move_.x as usize, move_.y as usize)
     }
     fn r#type(&self) -> RuleType {
@@ -36,7 +36,7 @@ impl Rule for BaseRule {
 }
 
 impl Rule for Capture {
-    fn valid(&self, board: &mut Board, move_: &Move, player: &Player) -> bool {
+    fn valid(&self, board: &mut Board, move_: &Move, player: & Player) -> bool {
         fn count_dir(
             player_x: i64,
             player_y: i64,
@@ -53,6 +53,7 @@ impl Rule for Capture {
                     return;
                 }
             }
+            board.stone_captured[id as usize - 1] += 2;
             board.set_fcoo(player_x as usize, player_y as usize, 0);
             board.set_fcoo(
                 (player_x + increment_x) as usize,

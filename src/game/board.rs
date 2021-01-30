@@ -5,12 +5,14 @@ use super::r#move::Move;
 pub struct Board {
     _board: Vec<u8>,
     pub size: usize,
+    pub stone_captured: [u8; 2],
 }
 
 impl Board {
     pub fn new(size: usize) -> Board {
         Board {
             _board: vec![0; size * size],
+            stone_captured: [0,0],
             size,
         }
     }
