@@ -141,7 +141,6 @@ impl Game {
         move_: &Move,
         board: &mut Board,
         p_id: u8,
-        count: u8,
         f: fn(i64, i64, i64, i64, u8, &mut Board) -> u8,
     ) -> u8 {
         let mut tmp = res;
@@ -165,14 +164,13 @@ impl Game {
         move_: &Move,
         board: &mut Board,
         p_id: u8,
-        count: u8,
         f: fn(i64, i64, i64, i64, u8, &mut Board) -> u8,
         f_after: fn((i64, i64), u8, &Move, &mut Board, u8, u8) -> u8,
     ) -> u8 {
         let mut result = 0;
-        let mut res = 0;
+        let res = 0;
         for vec in [(0, 1), (1, 1), (1, 0), (1, -1)].iter() {
-            let res = Game::apply_to_choosen_opposite(*vec, res, move_, board, p_id, count, f);
+            let res = Game::apply_to_choosen_opposite(*vec, res, move_, board, p_id, f);
             result = f_after(*vec, res, move_, board, p_id, result);
         }
         result
@@ -214,7 +212,6 @@ impl Game {
                 },
                 board,
                 p_id,
-                0,
                 check_capture_on_line,
                 Game::void_after,
             ) {
@@ -248,7 +245,6 @@ impl Game {
                     move_,
                     board,
                     p_id,
-                    count,
                     check_ennemy_possible_capture,
                 ) {
                     return BS_TRUE;
@@ -268,6 +264,6 @@ impl Game {
 
         let p_id = board.get(move_);
 
-        return 1 == Game::apply_to_near_edges(move_, board, p_id, 0, count_dir, check_count);
+        return 1 == Game::apply_to_near_edges(move_, board, p_id, count_dir, check_count);
     }
 }

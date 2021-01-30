@@ -45,7 +45,7 @@ impl Rule for Capture {
             increment_y: i64,
             id: u8,
             board: &mut Board,
-        ) ->u8 {
+        ) -> u8 {
             let vals = if id == 1 { [2, 2, 1] } else { [1, 1, 2] };
             for i in 0..3 {
                 let x = (player_x + increment_x * i) as usize;
@@ -63,15 +63,7 @@ impl Rule for Capture {
             );
             1
         }
-        Game::apply_to_near_edges(
-            move_,
-            board,
-            player.id,
-            0,
-            check_capture,
-            Game::void_after,
-        );
-        
+        Game::apply_to_near_edges(move_, board, player.id, check_capture, Game::void_after);
         true
     }
     fn r#type(&self) -> RuleType {
@@ -130,7 +122,6 @@ impl Rule for FreeThrees {
             move_,
             board,
             player.id,
-            0,
             check_free_threes,
             add_total_free_threes,
         );
