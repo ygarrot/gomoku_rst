@@ -1,4 +1,4 @@
-pub use crate::gameboard_view::{GameboardView, GameboardViewSettings};
+pub use crate::display::gameboard_view::{GameboardView, GameboardViewSettings};
 use piston::input::GenericEvent;
 
 pub struct GameboardController {

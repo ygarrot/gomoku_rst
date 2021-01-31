@@ -7,8 +7,9 @@ pub enum MoveError {
     GameEnded,
     MoveForbidden,
 }
-static MAX_STONE_CAPTURED: u8 = 10;
-static MAX_STONE_ALIGNED: u8 = 5;
+static MAX_STONE_CAPTURED: u8 = 4;
+static MAX_STONE_CAPTURED_FOR_BLOCK: u8 = MAX_STONE_CAPTURED - 2;
+static MAX_STONE_ALIGNED: u8 = 2;
 static BS_TRUE: u8 = 1;
 static BS_FALSE: u8 = 0;
 
@@ -186,12 +187,21 @@ impl Game {
             board: &mut Board,
         ) -> u8 {
             let opposite_id = if id == 1 { 2 } else { 1 };
-            let vals = [(-2, 0), (0, id), (1, opposite_id)];
+            let vals = [(-1, opposite_id), (0, id), (1, id), (2, 0)];
+            let vals_2 = [(0, opposite_id), (-1, id), (-2, id), (-3, 0)];
             for (i, val) in vals.iter() {
                 let x = (player_x + increment_x * i) as usize;
                 let y = (player_y + increment_y * i) as usize;
                 if !board.is_in_bounds(x, y) || board.get_fcoo(x, y) != *val {
-                    return BS_FALSE;
+                    {
+                        for (i, val) in vals_2.iter() {
+                            let x = (player_x + increment_x * i) as usize;
+                            let y = (player_y + increment_y * i) as usize;
+                            if !board.is_in_bounds(x, y) || board.get_fcoo(x, y) != *val {
+                                return BS_FALSE;
+                            }
+                        }
+                    }
                 }
             }
             return BS_TRUE;
@@ -239,15 +249,16 @@ impl Game {
                 return BS_TRUE;
             }
             if res >= MAX_STONE_ALIGNED {
-                if 1 != Game::apply_to_choosen_opposite(
+                if board.stone_captured[if p_id ==1 {1} else {0} as usize] == MAX_STONE_CAPTURED_FOR_BLOCK ||
+                BS_TRUE != Game::apply_to_choosen_opposite(
                     vec,
-                    res,
+                    0,
                     move_,
                     board,
                     p_id,
                     check_ennemy_possible_capture,
                 ) {
-                    return BS_TRUE;
+                        return BS_TRUE;
                 }
             }
             BS_FALSE

@@ -18,22 +18,36 @@ mod game {
     pub mod player;
     pub mod rules;
 }
-mod gameboard_controller;
-mod gameboard_view;
+mod display {
+    pub mod game_information_view;
+    pub mod gameboard_controller;
+    pub mod gameboard_view;
+}
+static AI_POWER_LVL: usize = 5;
 
 use game::game::{Game, MoveError};
 use game::r#move::Move;
 
 use game::minimax::minimax;
 
-pub use gameboard_controller::GameboardController;
-pub use gameboard_view::{GameboardView, GameboardViewSettings};
+pub use display::game_information_view::{GameInformationsView, GameInformationsViewSettings};
+pub use display::gameboard_controller::GameboardController;
+pub use display::gameboard_view::{GameboardView, GameboardViewSettings};
 
 fn main() {
     // Change this to OpenGL::V2_1 if not working.
     let opengl = OpenGL::V3_2;
 
     // Create an Glutin window.
+    // let mut infos: Window = WindowSettings::new("infos", [200, 400])
+    //     .graphics_api(opengl)
+    //     .exit_on_esc(true)
+    //     .build()
+    //     .unwrap();
+    // let mut info_view = GameInformationsView {
+    //     gl: GlGraphics::new(opengl),
+    //     settings: GameInformationsViewSettings::new(),
+    // };
     let mut window: Window = WindowSettings::new("gomoku", [800, 800])
         .graphics_api(opengl)
         .exit_on_esc(true)
@@ -44,7 +58,7 @@ fn main() {
         settings: GameboardViewSettings::new(),
     };
     let mut game = Game::new(
-        vec![("Player", false), ("AI", true)],
+        vec![("Player", false), ("AI", false)],
         9,
         1,
         vec!["Base", "Capture", "FreeThrees"],
@@ -59,7 +73,7 @@ fn main() {
                     &mut game.board.clone(),
                     game.player_turn - 1,
                     game.player_turn - 1,
-                    5,
+                    AI_POWER_LVL,
                     std::i64::MAX,
                     std::i64::MIN,
                     &mut game,

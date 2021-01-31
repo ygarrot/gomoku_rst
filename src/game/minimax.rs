@@ -2,7 +2,7 @@ use super::game::{MoveError, Game};
 use super::r#move::Move;
 use super::board::Board;
 
-fn gen_moves(current_player: u8, board: &mut Board, game: &mut Game) -> Vec<Move> {
+fn gen_moves(board: &mut Board, game: &mut Game) -> Vec<Move> {
     let mut list = vec![];
     let size = board.size;
     for y in 0..size {
@@ -56,8 +56,8 @@ pub fn minimax(
         best_move = (std::i64::MIN, Move {x: 255, y: 255})
     }
     
-    for m in gen_moves(current_player, &mut board, game) {
-        let res = minimax(&mut board.clone(), target_player, if current_player == 1 {2}else {1}, depth - 1, alpha, beta, game, Some(m));
+    for m in gen_moves(&mut board, game) {
+        let res = minimax(&mut board.clone(), target_player, if current_player == 1 {2} else {1}, depth - 1, alpha, beta, game, Some(m));
         if current_player == target_player {
             if best_move.0 < res.0 {
                 best_move = res;
