@@ -9,6 +9,7 @@ use piston::event_loop::{EventSettings, Events};
 use piston::input::RenderEvent;
 use piston::window::WindowSettings;
 
+#[path = "../game/"]
 mod game {
     pub mod board;
     pub mod game;
@@ -18,8 +19,9 @@ mod game {
     pub mod player;
     pub mod rules;
 }
+
+#[path = "../display/"]
 mod display {
-    pub mod game_information_view;
     pub mod gameboard_controller;
     pub mod gameboard_view;
 }
@@ -30,7 +32,6 @@ use game::r#move::Move;
 
 use game::minimax::minimax;
 
-pub use display::game_information_view::{GameInformationsView, GameInformationsViewSettings};
 pub use display::gameboard_controller::GameboardController;
 pub use display::gameboard_view::{GameboardView, GameboardViewSettings};
 

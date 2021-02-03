@@ -24,7 +24,6 @@ mod game {
 
 #[path = "../display/"]
 mod display {
-    pub mod game_information_view;
     pub mod gameboard_controller;
     pub mod gameboard_view;
 }
@@ -32,7 +31,6 @@ mod display {
 use game::game::{Game};
 use std::io::{self, BufReader};
 
-pub use display::game_information_view::{GameInformationsView, GameInformationsViewSettings};
 pub use display::gameboard_controller::GameboardController;
 pub use display::gameboard_view::{GameboardView, GameboardViewSettings};
 
