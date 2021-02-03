@@ -23,13 +23,5 @@ impl GameboardController {
         if let Some(Button::Mouse(MouseButton::Left)) = e.press_args() {
             self.click_on = Some(self.cursor_pos);
         }
-        // if let Some(Button::Keyboard(key)) = e.press_args() {
-        //     if let Some(ind) = self.selected_cell {
-        //         match key {
-        //             Key::D1 => self.gameboard.set(ind, 1),
-        //             _ => {}
-        //         }
-        //     }
-        // }
     }
 }

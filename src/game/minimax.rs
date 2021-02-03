@@ -34,6 +34,9 @@ pub fn minimax(
     game: &mut Game,
     mve: Option<Move>
 ) -> (i64, Move) {
+           use std::io::Write;
+
+    writeln!(game.file, "{}", board.serialize());
     let move_save = match mve {
         Some(m) => {
             match game.r#move(&m, Some(&mut board), Some(current_player)) {

@@ -2,25 +2,28 @@ use super::board::Board;
 use super::player::Player;
 use super::r#move::Move;
 use super::rules::{BaseRule, Capture, FreeThrees, Rule, RuleType};
+use std::fs::File;
 
 pub enum MoveError {
     GameEnded,
     MoveForbidden,
 }
-static MAX_STONE_CAPTURED: u8 = 4;
+static MAX_STONE_CAPTURED: u8 = 10;
 static MAX_STONE_CAPTURED_FOR_BLOCK: u8 = MAX_STONE_CAPTURED - 2;
-static MAX_STONE_ALIGNED: u8 = 2;
+static MAX_STONE_ALIGNED: u8 = 4;
 static BS_TRUE: u8 = 1;
 static BS_FALSE: u8 = 0;
 
-#[derive(Debug)]
 pub struct Game {
     rules: Vec<Box<dyn Rule>>,
     pub players: Vec<Player>,
     pub board: Board,
     pub player_turn: u8,
     pub global_turn: u32,
+    pub file: File,
 }
+
+use std::fs::OpenOptions;
 
 impl Game {
     pub fn new(
@@ -39,7 +42,6 @@ impl Game {
                 free_threes: 0,
             });
         }
-
         let mut r_vec: Vec<Box<dyn Rule>> = vec![];
         for rulename in rules.iter() {
             r_vec.push(match rulename {
@@ -49,13 +51,18 @@ impl Game {
                 _ => Box::new(BaseRule {}),
             });
         }
-
+        let mut _file = OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open("foo.txt")
+            .unwrap();
         Game {
             rules: r_vec,
             players: p_vec,
             board: Board::new(board_size),
             player_turn: starter,
             global_turn: 0,
+            file: _file,
         }
     }
 
@@ -249,16 +256,19 @@ impl Game {
                 return BS_TRUE;
             }
             if res >= MAX_STONE_ALIGNED {
-                if board.stone_captured[if p_id ==1 {1} else {0} as usize] == MAX_STONE_CAPTURED_FOR_BLOCK ||
-                BS_TRUE != Game::apply_to_choosen_opposite(
-                    vec,
-                    0,
-                    move_,
-                    board,
-                    p_id,
-                    check_ennemy_possible_capture,
-                ) {
-                        return BS_TRUE;
+                if board.stone_captured[if p_id == 1 { 1 } else { 0 } as usize]
+                    == MAX_STONE_CAPTURED_FOR_BLOCK
+                    || BS_TRUE
+                        != Game::apply_to_choosen_opposite(
+                            vec,
+                            0,
+                            move_,
+                            board,
+                            p_id,
+                            check_ennemy_possible_capture,
+                        )
+                {
+                    return BS_TRUE;
                 }
             }
             BS_FALSE

@@ -98,16 +98,6 @@ impl GameboardView<'_> {
         // TODO : coder le code
     }
 
-    // pub fn draw_ellipse(&mut self, args: &RenderArgs, x: f64, y: f64) {
-    //     let ref settings = self.settings;
-    //     let circle = rectangle::square(0.0, 0.0, settings.circle_size);
-
-    //     self.gl.draw(args.viewport(), |c, gl| {
-    //         let circle_transform = c.transform.trans(x, y);
-    //         ellipse(CIRCLE_COL_N, circle, circle_transform, gl);
-    //     });
-    // }
-
     pub fn get_cursor_indexes(
         &mut self,
         board_size: usize,

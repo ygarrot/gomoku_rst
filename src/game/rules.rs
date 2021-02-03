@@ -91,6 +91,7 @@ impl Rule for FreeThrees {
             if !board.is_in_bounds(player_x as usize, player_y as usize) {
                 return 0;
             }
+            //matching maybe better but we have to check if in bound ?
             let vals = if board.get_fcoo(player_x as usize, player_y as usize) == id {
                 [id, id, 0, 42]
             } else {

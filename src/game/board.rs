@@ -1,9 +1,10 @@
 use super::r#move::Move;
+use serde::{Serialize, Deserialize};
 
 // TODO: use a bitboard if performance are needed
 #[derive(Clone, Debug)]
 pub struct Board {
-    _board: Vec<u8>,
+    pub _board: Vec<u8>,
     pub size: usize,
     pub stone_captured: [u8; 2],
 }
@@ -17,6 +18,10 @@ impl Board {
         }
     }
 
+    pub fn serialize(&mut self)-> String
+    {
+        serde_json::to_string(&self._board).unwrap()
+    }
     pub fn set(&mut self, m: &Move, val: u8) {
         self._board[m.y as usize * self.size + m.x as usize] = val;
     }

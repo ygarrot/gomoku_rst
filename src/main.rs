@@ -38,16 +38,6 @@ fn main() {
     // Change this to OpenGL::V2_1 if not working.
     let opengl = OpenGL::V3_2;
 
-    // Create an Glutin window.
-    // let mut infos: Window = WindowSettings::new("infos", [200, 400])
-    //     .graphics_api(opengl)
-    //     .exit_on_esc(true)
-    //     .build()
-    //     .unwrap();
-    // let mut info_view = GameInformationsView {
-    //     gl: GlGraphics::new(opengl),
-    //     settings: GameInformationsViewSettings::new(),
-    // };
     let mut window: Window = WindowSettings::new("gomoku", [800, 800])
         .graphics_api(opengl)
         .exit_on_esc(true)
@@ -58,7 +48,7 @@ fn main() {
         settings: GameboardViewSettings::new(),
     };
     let mut game = Game::new(
-        vec![("Player", false), ("AI", false)],
+        vec![("Player", false), ("AI", true)],
         9,
         1,
         vec!["Base", "Capture", "FreeThrees"],
@@ -113,8 +103,5 @@ fn main() {
             gameboard_view.render(&game.board, &args, gameboard_controller.cursor_pos);
             gameboard_controller.click_on = None;
         }
-        // if let Some(args) = e.update_args() {
-        //     gameboard_view.update(&args);
-        // }
     }
 }
