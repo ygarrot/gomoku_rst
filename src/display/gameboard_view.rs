@@ -2,6 +2,7 @@ extern crate graphics;
 extern crate num_derive;
 extern crate piston;
 
+use crate::game::game::{Game, MoveError};
 use graphics::types::Color;
 use graphics::*;
 use opengl_graphics::{GlGraphics, GlyphCache, Texture, TextureSettings};
@@ -128,8 +129,16 @@ impl GameboardView<'_> {
             None
         }
     }
+    // pub fn display_information<G>(&mut self, board: &Board, game:&Game, gl:&mut G, c:types::Color) {
+    // }
 
-    pub fn render(&mut self, board: &Board, args: &RenderArgs, mouse_cursor: [f64; 2]) {
+    pub fn render(
+        &mut self,
+        board: &Board,
+        args: &RenderArgs,
+        mouse_cursor: [f64; 2],
+        game: &Game,
+    ) {
         self.update_settings(board.size, args);
         let coo = self.get_cursor_indexes(board.size, &args, mouse_cursor);
         let ref mut settings = self.settings;
@@ -141,7 +150,6 @@ impl GameboardView<'_> {
         self.gl.draw(args.viewport(), |c, gl| {
             clear(settings.background_color, gl);
             background.draw(&settings.bg_texture, &c.draw_state, c.transform, gl);
-            
             let cell_edge = Line::new(settings.line_color, 1.0);
             for i in 0..board.size {
                 let x = (i + 1) as f64 * square_size[X];
@@ -172,11 +180,46 @@ impl GameboardView<'_> {
                 );
                 ellipse(CIRCLE_COL, circle, trans, gl);
             }
+            let turn = format!("turn {}", game.global_turn);
+            let turn = format!("depth {}", board.depth);
+            let j1 = format!(
+                "joueur {} score : {}",
+                game.players[0].name,
+                board.get_score(1)
+            );
+            let j2 = format!(
+                "joueur {} score : {}",
+                game.players[1].name,
+                board.get_score(2)
+            );
             text::Text::new_color(BLACK, 32)
-                .draw("Hello world!", &mut settings.font_glyph, &c.draw_state, c.transform.trans(10.0, 100.0), gl,)
+                .draw(
+                    &turn,
+                    &mut settings.font_glyph,
+                    &c.draw_state,
+                    c.transform.trans(10.0, 100.0),
+                    gl,
+                )
+                .unwrap();
+            text::Text::new_color(BLACK, 32)
+                .draw(
+                    &j1,
+                    &mut settings.font_glyph,
+                    &c.draw_state,
+                    c.transform.trans(20.0, 200.0),
+                    gl,
+                )
+                .unwrap();
+            text::Text::new_color(BLACK, 32)
+                .draw(
+                    &j2,
+                    &mut settings.font_glyph,
+                    &c.draw_state,
+                    c.transform.trans(30.0, 300.0),
+                    gl,
+                )
                 .unwrap();
         });
     }
-    
     pub fn update(&mut self, _args: &UpdateArgs) {}
 }

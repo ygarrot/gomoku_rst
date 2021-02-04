@@ -71,7 +71,7 @@ fn main() -> io::Result<()> {
                         game.board._board = serde_json::from_str(&line).unwrap();
                         println!("deserialized = {:?}", game.board._board);
                         gameboard_controller.event(&e);
-                        gameboard_view.render(&game.board, &args, gameboard_controller.cursor_pos);
+                        gameboard_view.render(&game.board, &args, gameboard_controller.cursor_pos, &game);
                         gameboard_controller.click_on = None;
                         line.clear();
                     }

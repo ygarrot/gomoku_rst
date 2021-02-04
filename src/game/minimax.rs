@@ -24,6 +24,7 @@ fn gen_moves(board: &mut Board, game: &mut Game) -> Vec<Move> {
     list
 }
 
+
 pub fn minimax(
     mut board: &mut Board,
     target_player: u8,
@@ -35,8 +36,7 @@ pub fn minimax(
     mve: Option<Move>
 ) -> (i64, Move) {
            use std::io::Write;
-
-    writeln!(game.file, "{}", board.serialize());
+    writeln!(game.file, "{}", board.serialize(depth, current_player, game.global_turn));
     let move_save = match mve {
         Some(m) => {
             match game.r#move(&m, Some(&mut board), Some(current_player)) {

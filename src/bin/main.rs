@@ -25,15 +25,15 @@ mod display {
     pub mod gameboard_controller;
     pub mod gameboard_view;
 }
-static AI_POWER_LVL: usize = 5;
 
 use game::game::{Game, MoveError};
 use game::r#move::Move;
-
 use game::minimax::minimax;
 
-pub use display::gameboard_controller::GameboardController;
-pub use display::gameboard_view::{GameboardView, GameboardViewSettings};
+use display::gameboard_controller::GameboardController;
+use display::gameboard_view::{GameboardView, GameboardViewSettings};
+
+static AI_POWER_LVL: usize = 5;
 
 fn main() {
     // Change this to OpenGL::V2_1 if not working.
@@ -101,7 +101,7 @@ fn main() {
                     None => (),
                 };
             }
-            gameboard_view.render(&game.board, &args, gameboard_controller.cursor_pos);
+            gameboard_view.render(&game.board, &args, gameboard_controller.cursor_pos, &game);
             gameboard_controller.click_on = None;
         }
     }

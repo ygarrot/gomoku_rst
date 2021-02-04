@@ -51,11 +51,11 @@ impl Game {
                 _ => Box::new(BaseRule {}),
             });
         }
-        let mut _file = OpenOptions::new()
-            .write(true)
-            .append(true)
-            .open("foo.txt")
-            .unwrap();
+        use std::fs;
+        let debug_file="foo.txt";
+        //fs::remove_file(debug_file);
+        let mut _file = OpenOptions::new().append(true).create(true).open(debug_file).unwrap();
+        _file.set_len(0);
         Game {
             rules: r_vec,
             players: p_vec,
